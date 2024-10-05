@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
@@ -10,11 +10,14 @@ const Navbar = () => {
 
   return (
     <div className='rounded p-4'>
-      <nav className="bg-purple-300 p-4 rounded  ">
+      <nav className="bg-purple-300 p-4 rounded">
         <div className="flex justify-between items-center container mx-auto">
-          <div className=" text-left bg-gradient-to-r from-pink-400 via-slate-500 to-purple-500 bg-clip-text text-4xl tracking-tight text-transparent">
-           STUDENT SESSION
+          {/* Title */}
+          <div className="text-left bg-gradient-to-r from-pink-400 via-slate-500 to-purple-500 bg-clip-text text-4xl tracking-tight text-transparent">
+            STUDENT SESSION
           </div>
+          
+          {/* Mobile menu button */}
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-white">
               {/* Hamburger Icon */}
@@ -34,22 +37,55 @@ const Navbar = () => {
               </svg>
             </button>
           </div>
+
           {/* Desktop Menu */}
           <ul className="hidden md:flex space-x-8 text-black font-semibold">
-            <li><Link to="/" className=" hover:bg-violet-400">DashBoard</Link></li>
-            <li><Link to="/events" className=" hover:bg-violet-400">Events</Link></li>
-            <li><Link to="/od-apply" className=" hover:bg-violet-400">OD Apply</Link></li>
-            <li><Link to="/response" className=" hover:bg-violet-400">Response</Link></li>
+            <li>
+              <Link to="/student/dashboard" className="hover:bg-violet-400 p-2 rounded">
+                DashBoard
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/events" className="hover:bg-violet-400 p-2 rounded">
+                Events
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/od-apply" className="hover:bg-violet-400 p-2 rounded">
+                OD Apply
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/response" className="hover:bg-violet-400 p-2 rounded">
+                Response
+              </Link>
+            </li>
           </ul>
         </div>
 
         {/* Mobile Menu */}
         {isOpen && (
           <ul className="md:hidden mt-4 space-y-3 text-center text-black font-semibold">
-            <li><Link to="/" className="block py-2 hover:bg-violet-400">DashBoard</Link></li>
-            <li><Link to="/events" className="block py-2 hover:bg-violet-400">Events</Link></li>
-            <li><Link to="/od-apply" className="block py-2 hover:bg-violet-400">OD Apply</Link></li>
-            <li><Link to="/response" className="block py-2 hover:bg-violet-400">Response</Link></li>
+            <li>
+              <Link to="/student/dashboard" className="block py-2 hover:bg-violet-400">
+                DashBoard
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/events" className="block py-2 hover:bg-violet-400">
+                Events
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/od-apply" className="block py-2 hover:bg-violet-400">
+                OD Apply
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/response" className="block py-2 hover:bg-violet-400">
+                Response
+              </Link>
+            </li>
           </ul>
         )}
       </nav>

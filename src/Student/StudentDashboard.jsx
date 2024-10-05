@@ -1,24 +1,24 @@
 import { Routes, Route } from 'react-router-dom';
-import DashBoard from './Dashboard';        // Import your Profile component
-import Events from './Events'  ;
-import MonthlyStats from './MonthlyStats'     // Import your Stats component
-import OdApply from './OdAppply';                  // Import your OD component
-import Response from './Response';            // Import your AddUp component
-import Navbarst from './Navbar';           // Import your Navbar component
+import Dashboard from './Dashboard';          // Import your Dashboard component
+import Events from './Events';                // Import your Events component
+import MonthlyStats from './MonthlyStats';    // Import your MonthlyStats component
+import OdApply from './OdApply';              // Import your OdApply component
+import Response from './Response';            // Import your Response component
+import Navbar from './Navbar';                // Import your Navbar component
 
-const TeacherDashBoard = () => {
+const StudentDashBoard = () => {
   return (
     <div className="rounded p-4">
-      <Navbarst />
+      <Navbar />
       <Routes>
-        <Route path='/studashboard' element={<DashBoard />} />
-        <Route path='/student/monthlystats/*' element={<MonthlyStats />} />
-        <Route path='/student/od/*' element={<OdApply />} />
-        <Route path='/student/response/*' element={<Response />} />
-        <Route path='/student/event/*' element={<Events />} />
+        <Route path='/student/dashboard' element={<Dashboard />} />
+        <Route path='/student/events' element={<Events />} />
+        <Route path='/student/monthly-stats' element={<MonthlyStats />} />
+        <Route path='/student/od-apply' element={<OdApply />} />
+        <Route path='/student/response' element={<Response />} />
       </Routes>
     </div>
   );
 };
 
-export default TeacherDashBoard;
+export default StudentDashBoard;

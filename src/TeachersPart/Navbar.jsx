@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <div className="rounded p-4">
       <nav className="bg-purple-300 p-4 rounded relative">
-        <div className="min-h-screen absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
+        <div className="min-h-screen absolute inset-0 -z-10 h-full w-full bg-white bg-opacity-40 backdrop-filter backdrop-blur-lg"></div>
         <div className="container flex justify-between items-center">
           <div className="text-2xl text-left bg-gradient-to-r from-pink-400 via-slate-500 to-purple-500 bg-clip-text tracking-tight text-transparent">
             CLASS ADVISOR SESSION
@@ -48,3 +48,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+

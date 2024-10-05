@@ -1,40 +1,44 @@
-import { BrowserRouter,Route,Routes } from 'react-router-dom';
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import StudentDashboard from './Student/StudentDashBoard';
+import Events from './Student/Events';
+import MonthlyStats from './Student/MonthlyStats';
+import OdApply from './Student/OdApply';
+import Response from './Student/Response';
+import TeacherDashboard from './TeachersPart/TeacherDashBoard';
+import Addup from './TeachersPart/Addup';
+import Od from './TeachersPart/Od';
+import Profile from './TeachersPart/Profile';
+import Stats from './TeachersPart/Stats';
 import Signin from './Signin/Signin';
-import Profile from './TeachersPart/Profile';       
-import Stats from './TeachersPart/Stats';           
-import OD from './TeachersPart/Od';                  
-import AddUp from './TeachersPart/Addup';            
-import Navbar from './TeachersPart/Navbar';    
-import DashBoardst from './Student/Dashboard';        // Import your Profile component
-import Eventsst from './Student/Events'  ;
-import MonthlyStatsst from './Student//MonthlyStats'     // Import your Stats component
-import OdApplyst from './Student/OdApply';                  // Import your OD component
-import Responsest from './Student/Response';            // Import your AddUp component
 
-const App = () => {
+function App() {
   return (
-    <div>
-      <BrowserRouter>
-      <Navbar />
+    <Router>
+      {/* Add a common navbar here if you want */}
       <Routes>
+        {/* Student Routes */}
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/student/stats" element={<MonthlyStats />} />
+        <Route path="/student/events" element={<Events />} />
+        <Route path="/student/apply-od" element={<OdApply />} />
+        <Route path="/student/response" element={<Response />} />
+
+        {/* Teacher Routes */}
+        <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+        <Route path="/teacher/addup" element={<Addup />} />
+        <Route path="/teacher/stats" element={<Stats />} />
+        <Route path="/teacher/od" element={<Od />} />
+        <Route path="/teacher/profile" element={<Profile />} />
+
+        {/* Sign-in Route */}
         <Route path="/" element={<Signin />} />
-        
-        <Route path='/profile' element={<Profile />} />
-        <Route path='/teacher/stats/' element={<Stats />} />
-        <Route path='/teacher/od/' element={<OD />} />
-        <Route path='/teacher/addup/' element={<AddUp />} />
-        <Route path='/studashboard' element={<DashBoardst />} />
-        <Route path='/student/events/' element={<Eventsst  />} />
-        <Route path='/student/monthlystat/' element={<MonthlyStatsst/>} />
-        <Route path='/student/od/' element={<OdApplyst />} />
-        <Route path='/student/response/' element={<Responsest />} />
-        </Routes>      
-   
-      </BrowserRouter>
-     
-     
-     </div>
+
+        {/* Catch-all route (optional) */}
+        <Route path="*" element={<h1>Page Not Found</h1>} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
