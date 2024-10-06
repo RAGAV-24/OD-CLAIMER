@@ -63,6 +63,7 @@ const SigninForm = () => {
         >
           <option value="student">Student</option>
           <option value="teacher">Teacher</option>
+          <option value="teacher">Event Coodinator</option>
         </select>
         <button
           type="submit"

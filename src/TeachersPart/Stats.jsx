@@ -1,6 +1,6 @@
 
 import { Line } from 'react-chartjs-2';
-
+import Navbar from './Navbar';     
 const Stats = () => {
     const data = {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
@@ -48,7 +48,7 @@ const Stats = () => {
     
       
     <div className="rounded p-4">
-    
+    <Navbar />
     <div className="mt-12 text-center">
         <h2 className="text-2xl font-bold text-gray-900">Monthly OD Stats</h2>
         <div className="flex justify-center mt-6">

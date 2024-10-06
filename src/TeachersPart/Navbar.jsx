@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
@@ -15,7 +15,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-4">
-            <Link to="/profile" className="block font-bold text-black hover:bg-purple-400 px-3 py-2 rounded">PROFILE</Link>
+            <Link to="/teacher/profile" className="block font-bold text-black hover:bg-purple-400 px-3 py-2 rounded">PROFILE</Link>
             <Link to="/teacher/stats" className="block font-bold text-black hover:bg-purple-400 px-3 py-2 rounded">MONTHLY STATS</Link>
             <Link to="/teacher/od" className="block font-bold text-black hover:bg-purple-400 px-3 py-2 rounded">ODS</Link>
             <Link to="/teacher/addup" className="block font-bold text-black hover:bg-purple-400 px-3 py-2 rounded">DATA ADD UP</Link>

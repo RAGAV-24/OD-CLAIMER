@@ -1,6 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import StudentDashboard from './Student/StudentDashBoard';
+import StudentDashboard from './Student/StudentDashboard';
 import Events from './Student/Events';
 import MonthlyStats from './Student/MonthlyStats';
 import OdApply from './Student/OdApply';
@@ -14,6 +14,8 @@ import Signin from './Signin/Signin';
 
 function App() {
   return (
+    <div>
+    <div className="absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
     <Router>
       {/* Add a common navbar here if you want */}
       <Routes>
@@ -38,6 +40,7 @@ function App() {
         <Route path="*" element={<h1>Page Not Found</h1>} />
       </Routes>
     </Router>
+    </div>
   );
 }
 
