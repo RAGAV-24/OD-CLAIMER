@@ -13,9 +13,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/students'); // Ensure the endpoint is correct
-        setStudentData(response.data);
-        localStorage.setItem('studentData', JSON.stringify(response.data)); // Store the data in local storage for persistence
+        const response = await axios.get('http://localhost:5000/api/students');
+        
+        // Check if response contains an array of students or a single student object
+        const student = response.data.students ? response.data.students[0] : response.data;
+
+        setStudentData(student);
+        localStorage.setItem('studentData', JSON.stringify(student)); // Store the specific student data in local storage
       } catch (err) {
         setError('Failed to fetch student data');
         console.error(err);

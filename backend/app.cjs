@@ -53,28 +53,23 @@ app.post('/signin', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Normalize email to lowercase to avoid case sensitivity issues
     const normalizedEmail = email.toLowerCase();
-
-    // Find user in User collection by normalized email
     const user = await User.findOne({ email: normalizedEmail });
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Find student in Student collection by normalized email
     const student = await Student.findOne({ email: normalizedEmail });
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    // If login successful, return userType and student data
     res.status(200).json({ message: 'Login successful', data: { userType: user.userType, student } });
   } catch (err) {
     console.error("Sign-in error:", err);
@@ -87,9 +82,7 @@ app.post('/signup', async (req, res) => {
   const { email, password, userType } = req.body;
 
   try {
-    // Normalize email to lowercase before saving to avoid case sensitivity issues
     const normalizedEmail = email.toLowerCase();
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       email: normalizedEmail,
@@ -101,6 +94,17 @@ app.post('/signup', async (req, res) => {
     res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
     console.error("Sign-up error:", err);
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+
+// Route to get all students (fix for 404 error)
+app.get('/api/students', async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.status(200).json({ message: 'Students fetched successfully', students });
+  } catch (err) {
+    console.error("Error fetching students:", err);
     res.status(500).json({ message: 'Server error', error: err });
   }
 });

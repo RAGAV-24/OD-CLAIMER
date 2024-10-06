@@ -82,7 +82,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
-              <Link to="/student/od-apply" className="block py-2 hover:bg-violet-400">
+              <Link to="/student/apply-od" className="block py-2 hover:bg-violet-400">
                 OD Apply
               </Link>
             </li>

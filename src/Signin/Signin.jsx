@@ -5,11 +5,11 @@ import axios from 'axios'; // Import axios for HTTP requests
 import logo from './sigin.png'; // Ensure this path is correct
 
 const SigninImage = () => (
-  <div className="w-1/2 flex items-center justify-center">
+  <div className="w-full md:w-1/2 flex items-center justify-center mb-8 md:mb-0">
     <img
       src={logo}
       alt="Signin"
-      className="w-[1000px] h-[500px] object-cover rounded"
+      className="w-full h-auto object-cover rounded" // Make image responsive
     />
   </div>
 );
@@ -56,7 +56,7 @@ const SigninForm = () => {
   };
 
   return (
-    <div className="w-1/2 p-4 flex flex-col justify-center">
+    <div className="w-full md:w-1/2 p-4 flex flex-col justify-center">
       <motion.h2
         initial="hidden"
         animate="visible"
@@ -107,7 +107,7 @@ const Signin = () => {
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
-      <div className="bg-white rounded-lg shadow-lg p-8 max-w-4xl w-full flex">
+      <div className="bg-white rounded-lg shadow-lg p-8 max-w-4xl w-full flex flex-col md:flex-row"> {/* Use flex-col for smaller screens */}
         <SigninImage />
         <SigninForm />
       </div>
