@@ -7,7 +7,7 @@ import logo from './sigin.png'; // Ensure this path is correct
 const SigninImage = () => (
   <div className="w-1/2 flex items-center justify-center">
     <img
-      src={logo} 
+      src={logo}
       alt="Signin"
       className="w-[1000px] h-[500px] object-cover rounded"
     />
@@ -33,9 +33,10 @@ const SigninForm = () => {
 
       // If successful, navigate to the appropriate dashboard
       if (response.status === 200) {
-        const { userType } = response.data; // Get userType from response
+        const { userType, student } = response.data.data; // Get userType and student data from response
+        
         if (userType === 'student') {
-          navigate('/student/dashboard');
+          navigate('/student/dashboard', { state: { student } }); // Pass student data to the dashboard
         } else if (userType === 'teacher') {
           navigate('/teacher/dashboard');
         } else if (userType === 'eventCoordinator') {
