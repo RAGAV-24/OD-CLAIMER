@@ -1,11 +1,11 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import StudentDashboard from './Student/StudentDashboard';
+import StudentDashboard from './Student/Dashboard';
 import Events from './Student/Events';
 import MonthlyStats from './Student/MonthlyStats';
 import OdApply from './Student/OdApply';
 import Response from './Student/Response';
-import TeacherDashboard from './TeachersPart/TeacherDashBoard';
+import TeacherDashboard from './TeachersPart/Profile';
 import Addup from './TeachersPart/Addup';
 import Od from './TeachersPart/Od';
 import Profile from './TeachersPart/Profile';
