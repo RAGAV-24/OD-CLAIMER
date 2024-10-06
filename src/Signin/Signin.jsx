@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import logo from './sigin.png';
+import axios from 'axios'; // Import axios for HTTP requests
+import logo from './sigin.png'; // Ensure this path is correct
 
 const SigninImage = () => (
   <div className="w-1/2 flex items-center justify-center">
     <img
-      src={logo} // Ensure this path is correct
+      src={logo} 
       alt="Signin"
       className="w-[1000px] h-[500px] object-cover rounded"
     />
@@ -17,16 +18,39 @@ const SigninForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('student'); // Dropdown state for student or teacher
+  const [error, setError] = useState(''); // State to store error messages
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Navigate to different dashboards based on userType
-    if (userType === 'student') {
-      navigate('/student/dashboard'); // Navigates to Student Dashboard
-    } else if (userType === 'teacher') {
-      navigate('/teacher/dashboard'); // Navigates to Teacher Dashboard
+
+    try {
+      // Make a POST request to the backend for authentication
+      const response = await axios.post('http://localhost:5000/signin', {
+        email,
+        password,
+      });
+
+      // If successful, navigate to the appropriate dashboard
+      if (response.status === 200) {
+        const { userType } = response.data; // Get userType from response
+        if (userType === 'student') {
+          navigate('/student/dashboard');
+        } else if (userType === 'teacher') {
+          navigate('/teacher/dashboard');
+        } else if (userType === 'eventCoordinator') {
+          navigate('/event-coordinator/dashboard');
+        }
+      }
+    } catch (err) {
+      // If there's an error, display the error message
+      if (err.response) {
+        // Request made and server responded
+        setError(err.response.data.message || 'Invalid login credentials');
+      } else {
+        // Request made but no response received
+        setError('Server not responding. Please try again later.');
+      }
     }
   };
 
@@ -39,6 +63,7 @@ const SigninForm = () => {
       >
         Sign in
       </motion.h2>
+      {error && <p className="text-red-500">{error}</p>} {/* Display error */}
       <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
         <input
           type="email"
@@ -63,7 +88,7 @@ const SigninForm = () => {
         >
           <option value="student">Student</option>
           <option value="teacher">Teacher</option>
-          <option value="teacher">Event Coodinator</option>
+          <option value="eventCoordinator">Event Coordinator</option>
         </select>
         <button
           type="submit"
