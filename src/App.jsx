@@ -4,6 +4,7 @@ import StudentDashboard from './Student/Dashboard';
 import Events from './Student/Events';
 import MonthlyStats from './Student/MonthlyStats';
 import OdApply from './Student/OdApply';
+import Odresponse from './Student/Odresponse';
 import Response from './Student/Response';
 import TeacherDashboard from './TeachersPart/Profile';
 import Addup from './TeachersPart/Addup';
@@ -11,6 +12,7 @@ import Od from './TeachersPart/Od';
 import Profile from './TeachersPart/Profile';
 import Stats from './TeachersPart/Stats';
 import CoordinatorDashBoard from './EventCoordinator/Dashboard';
+import EventAddingForm from './EventCoordinator/EventAddingForm';
 import Signin from './Signin/Signin';
 
 function App() {
@@ -23,6 +25,7 @@ function App() {
         <Route path="/student/stats" element={<MonthlyStats />} />
         <Route path="/student/events" element={<Events />} />
         <Route path="/student/apply-od" element={<OdApply />} />
+        <Route path="/student/od-response" element={<Odresponse />} />
         <Route path="/student/response" element={<Response />} />
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
         <Route path="/teacher/addup" element={<Addup />} />
@@ -30,6 +33,7 @@ function App() {
         <Route path="/teacher/od" element={<Od />} />
         <Route path="/teacher/profile" element={<Profile />} />
         <Route path="/eventCoordinator/dashboard" element={<CoordinatorDashBoard />} />
+        <Route path="/eventCoordinator/eventform" element={<EventAddingForm />} />
         <Route path="/" element={<Signin />} />
 
         <Route path="*" element={<h1>Page Not Found</h1>} />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import Navbar from './Navbar';
 
@@ -7,7 +8,7 @@ const Dashboard = () => {
   const [profileData, setProfileData] = useState({});
   const [events, setEvents] = useState({
     insideCollege: [],
-    nationalSymposiums: [],
+    outsideCollege: [],
   });
 
   const onChange = (newDate) => {
@@ -20,7 +21,6 @@ const Dashboard = () => {
       try {
         const response = await fetch('http://localhost:5000/api/eventcoordinator');
 
-        // Check if the response is okay (status in the range 200-299)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -29,17 +29,16 @@ const Dashboard = () => {
         console.log('Fetched Data:', data);
 
         // Access the eventcoordinator array
-        const eventCoordinatorData = data.eventcoordinator[0] || {}; // Accessing the first object in the array
+        const eventCoordinatorData = data.eventcoordinator[0] || {};
 
         // Set profile data from the first event coordinator object
         setProfileData(eventCoordinatorData);
 
-        // Set events state if needed; currently using empty arrays as placeholders
+        // Set events state with actual event data fetched from the backend
         setEvents({
-          insideCollege: [], // Populate with actual event data if available
-          nationalSymposiums: [], // Populate with actual symposium data if available
+          insideCollege: data.insideCollegeEvents || [],
+          outsideCollege: data.outsideCollegeEvents || [],
         });
-
       } catch (error) {
         console.error("Error fetching dashboard data: ", error);
         setProfileData({});
@@ -48,6 +47,37 @@ const Dashboard = () => {
 
     fetchData();
   }, []);
+
+  const handleEdit = (event, type) => {
+    // Redirect to the edit event form with the event's data
+    console.log('Edit Event:', event, type);
+    // Implement edit logic here, e.g., navigate to an edit page
+  };
+
+  const handleDelete = async (eventId, type) => {
+    // Confirm deletion
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Update the events state
+        setEvents((prevEvents) => ({
+          ...prevEvents,
+          [type]: prevEvents[type].filter((event) => event._id !== eventId),
+        }));
+        
+        alert('Event deleted successfully!');
+      } catch (error) {
+        console.error("Error deleting event: ", error);
+      }
+    }
+  };
 
   const handleAddMore = (eventType) => {
     // Placeholder function for adding more events
@@ -87,38 +117,70 @@ const Dashboard = () => {
             <h3 className="text-xl font-bold mb-4">Inside College Events</h3>
             <div className="flex flex-wrap justify-center gap-4 mb-4">
               {events.insideCollege.length > 0 ? (
-                events.insideCollege.map((event, index) => (
-                  <p key={index}>{event.name}</p> // Render event names
+                events.insideCollege.map((event) => (
+                  <div key={event._id} className="border p-4 rounded-md">
+                    <h4 className="font-bold">{event.name}</h4>
+                    <p><strong>Description:</strong> {event.description}</p>
+                    <p><strong>Date:</strong> {event.date}</p>
+                    <p><strong>Duration:</strong> {event.duration}</p>
+                    <p><strong>College:</strong> {event.collegeName}</p>
+                    <div className="flex justify-between mt-2">
+                      <button 
+                        className="text-blue-600 hover:underline"
+                        onClick={() => handleEdit(event, 'insideCollege')}>Edit</button>
+                      <button 
+                        className="text-red-600 hover:underline"
+                        onClick={() => handleDelete(event._id, 'insideCollege')}>Delete</button>
+                    </div>
+                  </div>
                 ))
               ) : (
                 <p>No Inside College Events available at the moment.</p>
               )}
             </div>
             <button 
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+              className="bg-purple-500 text-white px-4 py-2 rounded "
               onClick={() => handleAddMore('Inside College Events')}
             >
-              Add More
+              <Link to="/eventCoordinator/eventform" className="hover:bg-violet-400 p-2 rounded">
+                Add event
+              </Link>
             </button>
           </div>
 
-          {/* National Level Symposium */}
+          {/* Outside College Events */}
           <div>
-            <h3 className="text-xl font-bold mb-4">National Level Symposium</h3>
+            <h3 className="text-xl font-bold mb-4">Outside College Events</h3>
             <div className="flex flex-wrap justify-center gap-4 mb-4">
-              {events.nationalSymposiums.length > 0 ? (
-                events.nationalSymposiums.map((symposium, index) => (
-                  <p key={index}>{symposium.name}</p> // Render symposium names
+              {events.outsideCollege.length > 0 ? (
+                events.outsideCollege.map((event) => (
+                  <div key={event._id} className="border p-4 rounded-md">
+                    <h4 className="font-bold">{event.name}</h4>
+                    <p><strong>Description:</strong> {event.description}</p>
+                    <p><strong>Date:</strong> {event.date}</p>
+                    <p><strong>Duration:</strong> {event.duration}</p>
+                    <p><strong>College:</strong> {event.collegeName}</p>
+                    <div className="flex justify-between mt-2">
+                      <button 
+                        className="text-blue-600 hover:underline"
+                        onClick={() => handleEdit(event, 'outsideCollege')}>Edit</button>
+                      <button 
+                        className="text-red-600 hover:underline"
+                        onClick={() => handleDelete(event._id, 'outsideCollege')}>Delete</button>
+                    </div>
+                  </div>
                 ))
               ) : (
-                <p>No National Level Symposiums available at the moment.</p>
+                <p>No Outside College Events available at the moment.</p>
               )}
             </div>
             <button 
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
-              onClick={() => handleAddMore('National Symposiums')}
+              className="bg-purple-500 text-white px-4 py-2 rounded transition duration-300"
+              onClick={() => handleAddMore('Outside College')}
             >
-              Add More
+              <Link to="/eventCoordinator/eventform" className="hover:bg-violet-400 p-2 rounded">
+                Add event
+              </Link>
             </button>
           </div>
         </div>

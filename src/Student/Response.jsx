@@ -1,5 +1,13 @@
-import Navbar from './Navbar';     
+import Navbar from './Navbar';
+import { useNavigate } from 'react-router-dom';
+
 const Response = () => {
+  const navigate=useNavigate();
+  const handleFileUpload = () => {
+   
+    navigate('/student/od-response');
+  };
+
   return (
     <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
@@ -18,40 +26,34 @@ const Response = () => {
                   <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Event Name</th>
                   <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">College Name</th>
                   <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Status</th>
+                  <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Upload</th> {/* New Upload Column */}
                 </tr>
               </thead>
 
               <tbody>
-                <tr className="bg-gray-50">
-                  <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
-                  <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Pending</td>
-                </tr>
-
-                <tr>
-                  <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
-                  <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Pending</td>
-                </tr>
-
-                <tr className="bg-gray-50">
-                  <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
-                  <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Pending</td>
-                </tr>
+                {/* Sample Row */}
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                    <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
+                    <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
+                    <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
+                    <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
+                    <td className="py-3 px-4 border-b border-gray-300">Pending</td>
+                    <td className="py-3 px-4 border-b border-gray-300">
+                     
+                      <button className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition" onClick={handleFileUpload}>
+                        Upload
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Response;

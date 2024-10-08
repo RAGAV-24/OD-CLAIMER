@@ -7,9 +7,6 @@ const OdApply = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic (you can send data to a server here if needed)
-    
-    // Show the modal after form submission
     setIsSubmitted(true);
   };
 
@@ -18,9 +15,9 @@ const OdApply = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
+    <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)] flex flex-col">
       <Navbar />
-      <div className="flex items-center justify-center h-[calc(100vh-64px)] py-12 px-4"> {/* Adjust height for the navbar */}
+      <div className="flex-grow flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-lg">
           {/* Apply OD Header */}
           <h1 className="text-2xl font-bold mb-8 text-gray-800">Apply OD</h1>
