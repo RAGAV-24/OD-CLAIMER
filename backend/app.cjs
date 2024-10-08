@@ -24,7 +24,7 @@ mongoose.connect(uri)
     console.error("MongoDB connection error:", err);
   });
 
-// Define the User model
+// Define the User model (for students)
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -32,13 +32,6 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-const teacherSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  userType: { type: String, required: true }, // e.g., 'student', 'teacher', 'event_coordinator'
-});
-
-const teacher = mongoose.model('teacherspasswords', teacherSchema);
 
 // Define the Student model
 const studentSchema = new mongoose.Schema({
@@ -55,6 +48,26 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model('Student', studentSchema);
 
+// Define the Teacher model (for authentication)
+const teacherPasswordSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  userType: { type: String, required: true }, // e.g., 'teacher'
+});
+
+const TeacherPassword = mongoose.model('teacherspasswords', teacherPasswordSchema);
+
+const teacherDataSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  class: { type: String, required: true },
+  department: { type: String, required: true },
+  dob: { type: String, required: true },
+  college: { type: String, required: true },
+});
+
+const TeacherData = mongoose.model('teachersdatas', teacherDataSchema);
+
 // Route to handle sign-in
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
@@ -62,42 +75,39 @@ app.post('/signin', async (req, res) => {
   try {
     const normalizedEmail = email.toLowerCase();
 
-    // Find user in the 'User' collection
-   
-
     // Check if the userType is 'student'
     if (userType === 'student') {
-      const user = await User.findOne({ email: normalizedEmail, userType });
+      const user = await User.findOne({ email: normalizedEmail });
 
       if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-      const student = await Student.findOne({ email: normalizedEmail });
-
-      if (!student) {
-        return res.status(404).json({ message: 'Student not found' });
+        return res.status(401).json({ message: 'Invalid email or password1' });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+        return res.status(401).json({ message: 'Invalid email or password2' });
       }
 
-      res.status(200).json({ message: 'Login successful', data: { userType, student } });
+      // Fetch student details
+      const student = await Student.findOne({ email: normalizedEmail });
+      return res.status(200).json({ message: 'Login successful', data: { userType, student } });
 
     // Check if the userType is 'teacher'
     } else if (userType === 'teacher') {
-      const user = await teacher.findOne({ email: normalizedEmail, userType });
+      const teacherUser = await TeacherPassword.findOne({ email: normalizedEmail });
 
-      if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+      if (!teacherUser) {
+        return res.status(401).json({ message: 'Invalid email or password3' });
       }
 
-      res.status(200).json({ message: 'Login successful', data: { userType, teacher: user } });
+      // Compare plain password for teachers (no bcrypt)
+      if (password !== teacherUser.password) {
+        return res.status(401).json({ message: 'Invalid email or password4' });
+      }
+
+      // Fetch teacher details
+      const teacherData = await TeacherData.findOne({ email: normalizedEmail });
+      return res.status(200).json({ message: 'Login successful', data: { userType, teacherData } });
 
     // Handle other user types like event coordinator
     } else if (userType === 'event_coordinator') {
@@ -110,7 +120,7 @@ app.post('/signin', async (req, res) => {
   }
 });
 
-// Route to handle sign-up
+// Route to handle sign-up (only for students)
 app.post('/signup', async (req, res) => {
   const { email, password, userType } = req.body;
 

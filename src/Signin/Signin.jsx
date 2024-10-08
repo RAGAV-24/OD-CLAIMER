@@ -20,6 +20,7 @@ const SigninForm = () => {
   const [userType, setUserType] = useState('student'); // Dropdown state for student or teacher
   const [error, setError] = useState(''); // State to store error messages
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -47,14 +48,17 @@ const SigninForm = () => {
       // If there's an error, display the error message
       if (err.response) {
         // Request made and server responded
-        setError(err.response.data.message || 'Invalid login credentials');
+        if (err.response.status === 401) {
+          setError('Invalid email or password. Please try again.');
+        } else {
+          setError(err.response.data.message || 'An unexpected error occurred.');
+        }
       } else {
         // Request made but no response received
         setError('Server not responding. Please try again later.');
       }
     }
   };
-  
 
   return (
     <div className="w-full md:w-1/2 p-4 flex flex-col justify-center">
