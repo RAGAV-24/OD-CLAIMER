@@ -23,22 +23,23 @@ const SigninForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       // Make a POST request to the backend for authentication
       const response = await axios.post('http://localhost:5000/signin', {
         email,
         password,
+        userType, // Include the userType in the request
       });
-
+  
       // If successful, navigate to the appropriate dashboard
       if (response.status === 200) {
-        const { userType, student } = response.data.data; // Get userType and student data from response
+        const { userType, student, teacher } = response.data.data; // Get userType, student, and teacher data from response
         
         if (userType === 'student') {
           navigate('/student/dashboard', { state: { student } }); // Pass student data to the dashboard
         } else if (userType === 'teacher') {
-          navigate('/teacher/dashboard');
+          navigate('/teacher/dashboard', { state: { teacher } }); // Pass teacher data to the dashboard
         } else if (userType === 'eventCoordinator') {
           navigate('/event-coordinator/dashboard');
         }
@@ -47,7 +48,11 @@ const SigninForm = () => {
       // If there's an error, display the error message
       if (err.response) {
         // Request made and server responded
-        setError(err.response.data.message || 'Invalid login credentials');
+        if (err.response.status === 401) {
+          setError('Invalid email or password. Please try again.');
+        } else {
+          setError(err.response.data.message || 'An unexpected error occurred.');
+        }
       } else {
         // Request made but no response received
         setError('Server not responding. Please try again later.');
