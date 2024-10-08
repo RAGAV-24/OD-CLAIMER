@@ -121,7 +121,16 @@ const formSchema = new mongoose.Schema({
   submittedAt: { type: Date, default: Date.now }   // Submission timestamp
 });
 const Form = mongoose.model('StudentForm', formSchema); // Ensure you keep this line
-// Sign-in endpoint
+const formSchemas = new mongoose.Schema({
+  rollNo: String,
+  name: String,
+  date: Date,
+  periods: Number,
+  eventName: String,
+  collegeName: String
+});
+
+const Form2 = mongoose.model('odApply', formSchemas);
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
   try {
@@ -260,7 +269,26 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
     res.status(500).json({ message: 'Error submitting form', error: err });
   }
 });
+app.post('/odapply', async (req, res) => {
+  try {
+    const { rollNo, name, date, periods, eventName, collegeName } = req.body;
 
+    const newForm = new Form2({
+      rollNo,
+      name,
+      date,
+      periods,
+      eventName,
+      collegeName
+    });
+
+    await newForm.save();
+    res.status(200).json({ message: 'Form submitted successfully' });
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    res.status(500).json({ error: 'Failed to submit form' });
+  }
+});
 
 // Get all events
 app.get('/api/events', async (req, res) => {
