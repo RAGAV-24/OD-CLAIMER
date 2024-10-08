@@ -32,6 +32,13 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+const teacherSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  userType: { type: String, required: true }, // e.g., 'student', 'teacher', 'event_coordinator'
+});
+
+const teacher = mongoose.model('teacherspasswords', teacherSchema);
 
 // Define the Student model
 const studentSchema = new mongoose.Schema({
@@ -50,27 +57,53 @@ const Student = mongoose.model('Student', studentSchema);
 
 // Route to handle sign-in
 app.post('/signin', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, userType } = req.body;
 
   try {
     const normalizedEmail = email.toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail });
 
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+    // Find user in the 'User' collection
+   
+
+    // Check if the userType is 'student'
+    if (userType === 'student') {
+      const user = await User.findOne({ email: normalizedEmail, userType });
+
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+      const student = await Student.findOne({ email: normalizedEmail });
+
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+      res.status(200).json({ message: 'Login successful', data: { userType, student } });
+
+    // Check if the userType is 'teacher'
+    } else if (userType === 'teacher') {
+      const user = await teacher.findOne({ email: normalizedEmail, userType });
+
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+      res.status(200).json({ message: 'Login successful', data: { userType, teacher: user } });
+
+    // Handle other user types like event coordinator
+    } else if (userType === 'event_coordinator') {
+      // Logic for event coordinator login (if applicable)
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    const student = await Student.findOne({ email: normalizedEmail });
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-
-    res.status(200).json({ message: 'Login successful', data: { userType: user.userType, student } });
   } catch (err) {
     console.error("Sign-in error:", err);
     res.status(500).json({ message: 'Server error', error: err });

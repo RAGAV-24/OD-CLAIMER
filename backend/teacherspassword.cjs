@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const csv = require('csvtojson');
-const bcrypt = require('bcrypt');
 const path = require('path');
 
 // MongoDB connection string
@@ -34,16 +33,14 @@ const importUsers = async () => {
     // Convert CSV to JSON
     const users = await csv().fromFile(csvFilePath);
 
-    // Process users: Set roll number as password and email as email
-    const processedUsers = await Promise.all(users.map(async user => {
-      // Hash the roll number (used as password) before inserting
-      const hashedPassword = await bcrypt.hash(user.CADOB, 10);
+    // Process users: Use roll number as password and email as email
+    const processedUsers = users.map(user => {
       return {
         email: user.CAEMAIL,
-        password: hashedPassword,
-        userType: 'teacher' // Set userType as student
+        password: user.CADOB, // Use roll number directly without hashing
+        userType: 'teacher' // Set userType as teacher
       };
-    }));
+    });
 
     // Insert users into MongoDB
     await User.insertMany(processedUsers);

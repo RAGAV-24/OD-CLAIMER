@@ -20,25 +20,25 @@ const SigninForm = () => {
   const [userType, setUserType] = useState('student'); // Dropdown state for student or teacher
   const [error, setError] = useState(''); // State to store error messages
   const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       // Make a POST request to the backend for authentication
       const response = await axios.post('http://localhost:5000/signin', {
         email,
         password,
+        userType, // Include the userType in the request
       });
-
+  
       // If successful, navigate to the appropriate dashboard
       if (response.status === 200) {
-        const { userType, student } = response.data.data; // Get userType and student data from response
+        const { userType, student, teacher } = response.data.data; // Get userType, student, and teacher data from response
         
         if (userType === 'student') {
           navigate('/student/dashboard', { state: { student } }); // Pass student data to the dashboard
         } else if (userType === 'teacher') {
-          navigate('/teacher/dashboard');
+          navigate('/teacher/dashboard', { state: { teacher } }); // Pass teacher data to the dashboard
         } else if (userType === 'eventCoordinator') {
           navigate('/event-coordinator/dashboard');
         }
@@ -54,6 +54,7 @@ const SigninForm = () => {
       }
     }
   };
+  
 
   return (
     <div className="w-full md:w-1/2 p-4 flex flex-col justify-center">
