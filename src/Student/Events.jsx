@@ -1,21 +1,33 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 
 const Events = () => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState({
+    insideCollege: [],
+    outsideCollege: [],
+  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/eventsposted'); // Replace with your API URL
+        const response = await fetch('http://localhost:5000/api/eventsposted');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setEvents(data);
+        const insideCollegeEvents = data.filter(event => event.eventType === 'insideCollege');
+        const outsideCollegeEvents = data.filter(event => event.eventType === 'outsideCollege');
+
+        setEvents({
+          insideCollege: insideCollegeEvents,
+          outsideCollege: outsideCollegeEvents,
+        });
       } catch (error) {
-        console.error('Error fetching events:', error);
+        setError('Error fetching events: ' + error.message);
       } finally {
         setLoading(false);
       }
@@ -24,61 +36,94 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  // Filter events for Inside College and Outside College
-  const insideCollegeEvents = events.filter(event => event.type === 'inside');
-  const outsideCollegeEvents = events.filter(event => event.type === 'outside');
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedEvent(null);
+  };
 
   return (
     <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Events</h2>
+      <div className="flex flex-col items-center justify-center py-4 space-y-8 max-w-7xl mx-auto px-4">
 
-        {/* Inside College Section */}
+        {/* Loading and Error State */}
         {loading ? (
-          <div>Loading events...</div>
+          <p>Loading events...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
         ) : (
-          <div className="mb-12">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Inside College</h3>
-              <a href="#" className="text-sm text-blue-500 font-semibold hover:underline">See More</a>
+          <>
+            {/* Inside College Events */}
+            <div className="bg-gray-200 shadow-lg rounded-lg p-8 w-full max-w-4xl">
+              <h2 className="text-xl font-bold mb-4">Inside College Events</h2>
+              <div className="flex flex-wrap justify-center gap-4 mb-4">
+                {events.insideCollege.length > 0 ? (
+                  events.insideCollege.map(event => (
+                    <div 
+                      key={event._id} 
+                      className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <h4 className="font-bold">{event.eventName}</h4>
+                      <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No Inside College Events available at the moment.</p>
+                )}
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {/* Map over inside college events */}
-              {insideCollegeEvents.length > 0 ? (
-                insideCollegeEvents.map(event => (
-                  <div key={event.id} className="bg-gray-100 h-40 flex flex-col justify-center items-center rounded-lg shadow">
-                    <h4 className="text-lg font-semibold">{event.title}</h4>
-                    <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-                  </div>
-                ))
-              ) : (
-                <p>No events found inside college.</p>
+
+            {/* Outside College Events */}
+            <div className="bg-gray-200 shadow-lg rounded-lg p-8 w-full max-w-4xl mt-4">
+              <h2 className="text-xl font-bold mb-4">Outside College Events</h2>
+              <div className="flex flex-wrap justify-center gap-4 mb-4">
+                {events.outsideCollege.length > 0 ? (
+                  events.outsideCollege.map(event => (
+                    <div 
+                      key={event._id} 
+                      className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <h4 className="font-bold">{event.eventName}</h4>
+                      <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No Outside College Events available at the moment.</p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Modal for Event Details */}
+        {showModal && selectedEvent && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative">
+              <h2 className="text-2xl font-bold mb-4">{selectedEvent.eventName}</h2>
+              <p><strong>Description:</strong> {selectedEvent.description}</p>
+              <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
+              <p><strong>Location:</strong> {selectedEvent.location}</p>
+              <p><strong>Registration Link:</strong> <a href={selectedEvent.registrationLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">{selectedEvent.registrationLink}</a></p>
+              <p><strong>Image:</strong> {selectedEvent.image && (
+                <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2" />
               )}
+              </p>
+              <button 
+                className="absolute top-2 right-2 text-red-500"
+                onClick={closeModal}
+              >
+                &times; {/* Close button */}
+              </button>
             </div>
           </div>
         )}
-
-        {/* Outside College Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold">Outside College</h3>
-            <a href="#" className="text-sm text-blue-500 font-semibold hover:underline">See More</a>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Map over outside college events */}
-            {outsideCollegeEvents.length > 0 ? (
-              outsideCollegeEvents.map(event => (
-                <div key={event.id} className="bg-gray-100 h-40 flex flex-col justify-center items-center rounded-lg shadow">
-                  <h4 className="text-lg font-semibold">{event.title}</h4>
-                  <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-                </div>
-              ))
-            ) : (
-              <p>No events found outside college.</p>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

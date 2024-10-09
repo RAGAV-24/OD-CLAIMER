@@ -173,7 +173,8 @@ const Dashboard = () => {
               <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
               <p><strong>Duration:</strong> {selectedEvent.duration}</p>
               <p><strong>College:</strong> {selectedEvent.collegeName}</p>
-              <p><strong>Registration link:</strong> {selectedEvent.registrationLink}</p>
+              <p><strong>Registration Link:</strong> <a href={selectedEvent.registrationLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">{selectedEvent.registrationLink}</a></p>
+
               <p><strong>Image:</strong> <img   src={`./backend/eventuploads/${selectedEvent.image}`} 
      alt={selectedEvent.eventName} className="w-full h-auto mt-2" /></p>
               <button 
