@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import Navbar from './Navbar';
 
@@ -10,6 +10,9 @@ const Dashboard = () => {
     insideCollege: [],
     outsideCollege: [],
   });
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const navigate = useNavigate();
 
   const onChange = (newDate) => {
     setDate(newDate);
@@ -19,6 +22,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch profile data and events data in one call
         const response = await fetch('http://localhost:5000/api/eventcoordinator');
 
         if (!response.ok) {
@@ -41,47 +45,18 @@ const Dashboard = () => {
         });
       } catch (error) {
         console.error("Error fetching dashboard data: ", error);
+        setError("Error fetching data. Please try again later.");
         setProfileData({});
+      } finally {
+        setIsLoading(false); // Set loading to false after data fetch
       }
     };
 
     fetchData();
   }, []);
 
-  const handleEdit = (event, type) => {
-    // Redirect to the edit event form with the event's data
-    console.log('Edit Event:', event, type);
-    // Implement edit logic here, e.g., navigate to an edit page
-  };
-
-  const handleDelete = async (eventId, type) => {
-    // Confirm deletion
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      try {
-        const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
-          method: 'DELETE',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Update the events state
-        setEvents((prevEvents) => ({
-          ...prevEvents,
-          [type]: prevEvents[type].filter((event) => event._id !== eventId),
-        }));
-        
-        alert('Event deleted successfully!');
-      } catch (error) {
-        console.error("Error deleting event: ", error);
-      }
-    }
-  };
-
-  const handleAddMore = (eventType) => {
-    // Placeholder function for adding more events
-    alert(`Add more ${eventType}`);
+  const handleAddMore = () => {
+    navigate('/eventCoordinator/eventform');
   };
 
   return (
@@ -90,18 +65,24 @@ const Dashboard = () => {
       <div className="flex flex-col items-center justify-center space-y-8">
 
         {/* Profile Information */}
-        <div className="bg-gray-200 shadow-lg rounded-lg p-12 w-full max-w-4xl text-left">
-          <ul className="text-gray-900 text-lg space-y-2 leading-relaxed">
-            <li><span className="font-bold">Name:</span> {profileData.name || 'Loading...'}</li>
-            <li><span className="font-bold">Roll Number:</span> {profileData.rollNo || 'Loading...'}</li>
-            <li><span className="font-bold">Club Name:</span> {profileData.club || 'Loading...'}</li>
-            <li><span className="font-bold">Position in the club:</span> {profileData.position || 'Loading...'}</li>
-            <li><span className="font-bold">College:</span> {profileData.college || 'Loading...'}</li>
-            <li><span className="font-bold">Email:</span> {profileData.email || 'Loading...'}</li>
-            <li><span className="font-bold">Phone Number:</span> {profileData.phoneNumber || 'Loading...'}</li>
-            <li><span className="font-bold">Address:</span> {profileData.address || 'Loading...'}</li>
-          </ul>
-        </div>
+        {isLoading ? ( // Display loading state
+          <p>Loading...</p>
+        ) : error ? ( // Display error if any
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <div className="bg-gray-200 shadow-lg rounded-lg p-12 w-full max-w-4xl text-left">
+            <ul className="text-gray-900 text-lg space-y-2 leading-relaxed">
+              <li><span className="font-bold">Name:</span> {profileData.name || 'N/A'}</li>
+              <li><span className="font-bold">Roll Number:</span> {profileData.rollNo || 'N/A'}</li>
+              <li><span className="font-bold">Club Name:</span> {profileData.club || 'N/A'}</li>
+              <li><span className="font-bold">Position in the club:</span> {profileData.position || 'N/A'}</li>
+              <li><span className="font-bold">College:</span> {profileData.college || 'N/A'}</li>
+              <li><span className="font-bold">Email:</span> {profileData.email || 'N/A'}</li>
+              <li><span className="font-bold">Phone Number:</span> {profileData.phoneNumber || 'N/A'}</li>
+              <li><span className="font-bold">Address:</span> {profileData.address || 'N/A'}</li>
+            </ul>
+          </div>
+        )}
 
         {/* Monthly Event Schedule */}
         <div className="bg-gray-100 shadow-lg rounded-lg p-8 w-full max-w-4xl text-center">
@@ -119,18 +100,16 @@ const Dashboard = () => {
               {events.insideCollege.length > 0 ? (
                 events.insideCollege.map((event) => (
                   <div key={event._id} className="border p-4 rounded-md">
-                    <h4 className="font-bold">{event.name}</h4>
+                    <h4 className="font-bold">{event.eventName}</h4>
                     <p><strong>Description:</strong> {event.description}</p>
-                    <p><strong>Date:</strong> {event.date}</p>
+                    <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
                     <p><strong>Duration:</strong> {event.duration}</p>
                     <p><strong>College:</strong> {event.collegeName}</p>
                     <div className="flex justify-between mt-2">
                       <button 
                         className="text-blue-600 hover:underline"
-                        onClick={() => handleEdit(event, 'insideCollege')}>Edit</button>
-                      <button 
-                        className="text-red-600 hover:underline"
-                        onClick={() => handleDelete(event._id, 'insideCollege')}>Delete</button>
+                        onClick={() => navigate(`/eventCoordinator/edit/${event._id}`)}
+                      >Edit</button>
                     </div>
                   </div>
                 ))
@@ -139,12 +118,10 @@ const Dashboard = () => {
               )}
             </div>
             <button 
-              className="bg-purple-500 text-white px-4 py-2 rounded "
-              onClick={() => handleAddMore('Inside College Events')}
+              className="bg-purple-500 text-white px-4 py-2 rounded transition duration-300"
+              onClick={handleAddMore}
             >
-              <Link to="/eventCoordinator/eventform" className="hover:bg-violet-400 p-2 rounded">
-                Add event
-              </Link>
+              Add event
             </button>
           </div>
 
@@ -155,18 +132,16 @@ const Dashboard = () => {
               {events.outsideCollege.length > 0 ? (
                 events.outsideCollege.map((event) => (
                   <div key={event._id} className="border p-4 rounded-md">
-                    <h4 className="font-bold">{event.name}</h4>
+                    <h4 className="font-bold">{event.eventName}</h4>
                     <p><strong>Description:</strong> {event.description}</p>
-                    <p><strong>Date:</strong> {event.date}</p>
+                    <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
                     <p><strong>Duration:</strong> {event.duration}</p>
                     <p><strong>College:</strong> {event.collegeName}</p>
                     <div className="flex justify-between mt-2">
                       <button 
                         className="text-blue-600 hover:underline"
-                        onClick={() => handleEdit(event, 'outsideCollege')}>Edit</button>
-                      <button 
-                        className="text-red-600 hover:underline"
-                        onClick={() => handleDelete(event._id, 'outsideCollege')}>Delete</button>
+                        onClick={() => navigate(`/eventCoordinator/edit/${event._id}`)}
+                      >Edit</button>
                     </div>
                   </div>
                 ))
@@ -176,11 +151,9 @@ const Dashboard = () => {
             </div>
             <button 
               className="bg-purple-500 text-white px-4 py-2 rounded transition duration-300"
-              onClick={() => handleAddMore('Outside College')}
+              onClick={handleAddMore}
             >
-              <Link to="/eventCoordinator/eventform" className="hover:bg-violet-400 p-2 rounded">
-                Add event
-              </Link>
+              Add event
             </button>
           </div>
         </div>

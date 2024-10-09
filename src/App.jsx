@@ -18,8 +18,8 @@ import Signin from './Signin/Signin';
 function App() {
   return (
     <div>
-    <div className="absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
-    <Router>
+   <div className="absolute inset-0 -z-10 min-h-screen w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
+   <Router>
       <Routes>
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/stats" element={<MonthlyStats />} />

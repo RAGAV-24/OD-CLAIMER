@@ -5,28 +5,47 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const app = express();
 const path = require('path');
-
 const multer = require('multer');
 const PORT = process.env.PORT || 5000;
-
+const router = express.Router();
 app.use(cors({
   origin: 'http://localhost:5173',
 }));
 app.use(express.json());
 app.use(bodyParser.json());
- 
-// Set up multer for file uploads
-const storage = multer.diskStorage({
+const storageUploads = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Specify the uploads directory
+    cb(null, 'uploads/'); // Directory for uploads
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)); // Use original file extension
   }
 });
-const upload = multer({ storage });
+const upload = multer({ storage: storageUploads });
 
+// Second storage for event uploads
+const storageEventUploads = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'eventuploads/'); // Directory for event-specific uploads
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Use the current timestamp for the filename
+  }
+});
+const upload1 = multer({ storage: storageEventUploads });
+const eventSchema = new mongoose.Schema({
+rollNumber: String,
+name: String,
+date: String,
+duration: String,
+eventName: String,
+collegeName: String,
+description: String,
+registrationLink: String,
+image: String,
+});
+const Event = mongoose.model('Event', eventSchema);
 const uri = 'mongodb+srv://ragavr33:rudu007@student.mrg3e.mongodb.net/ODClaimerDB?retryWrites=true&w=majority';
 mongoose.connect(uri)
   .then(() => {
@@ -35,15 +54,12 @@ mongoose.connect(uri)
   .catch(err => {
     console.error("MongoDB connection error:", err);
   });
-
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userType: { type: String, required: true },
 });
-
 const User = mongoose.model('User', userSchema);
-
 const studentSchema = new mongoose.Schema({
   rollNumber: { type: String, required: true },
   name: { type: String, required: true },
@@ -55,17 +71,13 @@ const studentSchema = new mongoose.Schema({
   classAdvisor: { type: String, required: true },
   mode: { type: String, required: true },
 });
-
 const Student = mongoose.model('Student', studentSchema);
-
 const teacherPasswordSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userType: { type: String, required: true },
 });
-
 const TeacherPassword = mongoose.model('teacherspasswords', teacherPasswordSchema);
-
 const teacherDataSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -74,17 +86,13 @@ const teacherDataSchema = new mongoose.Schema({
   dob: { type: String, required: true },
   college: { type: String, required: true },
 });
-
 const TeacherData = mongoose.model('teachersdatas', teacherDataSchema);
-
 const eventCoordinatorPasswordSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userType: { type: String, required: true }, 
 });
-
 const EventCoordinatorPassword = mongoose.model('eventcoordinatorpasswords', eventCoordinatorPasswordSchema);
-
 const eventCoordinatorSchema = new mongoose.Schema({
   timestamp: { type: String, required: true },
   name: { type: String, required: true },
@@ -96,19 +104,7 @@ const eventCoordinatorSchema = new mongoose.Schema({
   position: { type: String, required: true },
   college: { type: String, required: true },
 });
-
 const EventCoordinator = mongoose.model('eventcoordinatorsdatas', eventCoordinatorSchema);
-
-// New Event Schema
-const eventSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  date: { type: String, required: true },
-  time: { type: String, required: true },
-  location: { type: String, required: true },
-  description: { type: String, required: true },
-});
-
-const Event = mongoose.model('events', eventSchema);
 const formSchema = new mongoose.Schema({
   name: { type: String, required: true },          // Student name
   rollNo: { type: String, required: true },        // Roll number (allow duplicates)
@@ -129,7 +125,6 @@ const formSchemas = new mongoose.Schema({
   eventName: String,
   collegeName: String
 });
-
 const Form2 = mongoose.model('odApply', formSchemas);
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
@@ -173,11 +168,8 @@ app.post('/signin', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-
-// Sign-up endpoint
 app.post('/signup', async (req, res) => {
   const { email, password, userType } = req.body;
-
   try {
     const normalizedEmail = email.toLowerCase();
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -186,7 +178,6 @@ app.post('/signup', async (req, res) => {
       password: hashedPassword,
       userType,
     });
-
     await newUser.save();
     res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
@@ -194,8 +185,6 @@ app.post('/signup', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-
-// Get all students
 app.get('/api/students', async (req, res) => {
   try {
     const students = await Student.find();
@@ -205,8 +194,6 @@ app.get('/api/students', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-
-// Get all teachers
 app.get('/api/teacher', async (req, res) => {
   try {
     const teachers = await TeacherData.find(); 
@@ -215,9 +202,34 @@ app.get('/api/teacher', async (req, res) => {
     console.error("Error fetching teachers:", err);
     res.status(500).json({ message: 'Server error', error: err });
   }
+});// Route for regular uploads
+
+app.post('/api/events', upload1.single('image'), async (req, res) => {
+  try {
+    const { rollNumber, name, date, duration, eventName, collegeName, description, registrationLink } = req.body;
+    const image = req.file?.path || ''; // Ensure image file is uploaded
+
+    const newEvent = new Event({
+      rollNumber,
+      name,
+      date,
+      duration,
+      eventName,
+      collegeName,
+      description,
+      registrationLink,
+      image, // Save the event image path
+    });
+
+    await newEvent.save();
+    res.status(201).json({ message: 'Event added successfully!' });
+  } catch (error) {
+    console.error('Error adding event:', error);
+    res.status(500).json({ message: 'Error adding event', error });
+  }
 });
 
-// Get all event coordinators
+
 app.get('/api/eventcoordinator', async (req, res) => {
   try {
     const eventcoordinator = await EventCoordinator.find();
@@ -228,29 +240,11 @@ app.get('/api/eventcoordinator', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-
-// New Event Endpoints
-
-// Create a new event
-app.post('/api/events', async (req, res) => {
-  const { name, date, time, location, description } = req.body;
-  try {
-    const newEvent = new Event({ name, date, time, location, description });
-    await newEvent.save();
-    res.status(201).json({ message: 'Event created successfully', newEvent });
-  } catch (err) {
-    console.error("Error creating event:", err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
 app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'attendancePhoto' }]), async (req, res) => {
   const { name, rollNo, date, periods, eventName, collegeName } = req.body;
- 
   try {
-    // Access the uploaded files through req.files
     const geotagPhoto = req.files['geotagPhoto'][0].path; // Path to the geotag photo
-    const attendancePhoto = req.files['attendancePhoto'][0].path; // Path to the attendance sheet photo
-
+    const attendancePhoto = req.files['attendancePhoto'][0].path;
     const newForm = new Form({ // Use the Form model correctly
       name,
       rollNo, // Ensure this matches the field in your form
@@ -261,7 +255,6 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
       geotagPhoto, // Use the file path
       attendancePhoto // Use the file path
     });
-
     await newForm.save();
     res.status(201).json({ message: 'Form submitted successfully' });
   } catch (err) {
@@ -272,7 +265,6 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
 app.post('/odapply', async (req, res) => {
   try {
     const { rollNo, name, date, periods, eventName, collegeName } = req.body;
-
     const newForm = new Form2({
       rollNo,
       name,
@@ -281,7 +273,6 @@ app.post('/odapply', async (req, res) => {
       eventName,
       collegeName
     });
-
     await newForm.save();
     res.status(200).json({ message: 'Form submitted successfully' });
   } catch (error) {
@@ -289,23 +280,10 @@ app.post('/odapply', async (req, res) => {
     res.status(500).json({ error: 'Failed to submit form' });
   }
 });
-
-// Get all events
-app.get('/api/events', async (req, res) => {
-  try {
-    const events = await Event.find();
-    res.status(200).json({ message: 'Events fetched successfully', events });
-  } catch (err) {
-    console.error("Error fetching events:", err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
-
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
