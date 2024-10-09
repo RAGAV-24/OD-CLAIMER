@@ -40,6 +40,7 @@ name: String,
 date: String,
 duration: String,
 eventName: String,
+eventType: String,
 collegeName: String,
 description: String,
 registrationLink: String,
@@ -206,7 +207,7 @@ app.get('/api/teacher', async (req, res) => {
 
 app.post('/api/events', upload1.single('image'), async (req, res) => {
   try {
-    const { rollNumber, name, date, duration, eventName, collegeName, description, registrationLink } = req.body;
+    const { rollNumber, name, date, duration, eventName,eventType, collegeName, description, registrationLink } = req.body;
     const image = req.file?.path || ''; // Ensure image file is uploaded
 
     const newEvent = new Event({
@@ -215,12 +216,13 @@ app.post('/api/events', upload1.single('image'), async (req, res) => {
       date,
       duration,
       eventName,
+      eventType,
       collegeName,
       description,
       registrationLink,
       image, // Save the event image path
     });
-
+    console.log(newEvent );
     await newEvent.save();
     res.status(201).json({ message: 'Event added successfully!' });
   } catch (error) {
@@ -278,6 +280,15 @@ app.post('/odapply', async (req, res) => {
   } catch (error) {
     console.error('Error submitting form:', error);
     res.status(500).json({ error: 'Failed to submit form' });
+  }
+});
+
+app.get('/api/eventsposted', async (req, res) => {
+  try {
+    const events = await Event.find();
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching events' });
   }
 });
 app.use((err, req, res, next) => {

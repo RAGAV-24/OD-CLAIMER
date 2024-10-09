@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import Navbar from './Navbar';
@@ -12,6 +12,7 @@ const Dashboard = () => {
   });
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
+  const [selectedEvent, setSelectedEvent] = useState(null); // State for the selected event
   const navigate = useNavigate();
 
   const onChange = (newDate) => {
@@ -22,29 +23,37 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch profile data and events data in one call
-        const response = await fetch('http://localhost:5000/api/eventcoordinator');
+        const response1 = await fetch('http://localhost:5000/api/eventcoordinator');
 
+        if (!response1.ok) {
+          throw new Error(`HTTP error! status: ${response1.status}`);
+        }
+
+        const data1 = await response1.json();
+        console.log('Fetched Data:', data1);
+        const eventCoordinatorData = data1.eventcoordinator[0] || {};
+        setProfileData(eventCoordinatorData);
+
+        // Fetch all events data
+        const response = await fetch('http://localhost:5000/api/eventsposted');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Fetched Data:', data);
+        console.log('Fetched Events:', data);
 
-        // Access the eventcoordinator array
-        const eventCoordinatorData = data.eventcoordinator[0] || {};
+        // Filter events based on college type
+        const insideCollegeEvents = data.filter(event => event.eventType=== 'insideCollege');
+        const outsideCollegeEvents = data.filter(event => event.eventType=== 'outsideCollege');
 
-        // Set profile data from the first event coordinator object
-        setProfileData(eventCoordinatorData);
-
-        // Set events state with actual event data fetched from the backend
+        // Update the events state with filtered data
         setEvents({
-          insideCollege: data.insideCollegeEvents || [],
-          outsideCollege: data.outsideCollegeEvents || [],
+          insideCollege: insideCollegeEvents,
+          outsideCollege: outsideCollegeEvents,
         });
       } catch (error) {
-        console.error("Error fetching dashboard data: ", error);
+        console.error("Error fetching data: ", error);
         setError("Error fetching data. Please try again later.");
         setProfileData({});
       } finally {
@@ -57,6 +66,15 @@ const Dashboard = () => {
 
   const handleAddMore = () => {
     navigate('/eventCoordinator/eventform');
+  };
+
+  // Function to display event details
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+  };
+
+  const closeDetails = () => {
+    setSelectedEvent(null); // Close the details view
   };
 
   return (
@@ -99,18 +117,13 @@ const Dashboard = () => {
             <div className="flex flex-wrap justify-center gap-4 mb-4">
               {events.insideCollege.length > 0 ? (
                 events.insideCollege.map((event) => (
-                  <div key={event._id} className="border p-4 rounded-md">
+                  <div 
+                    key={event._id} 
+                    className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                    onClick={() => handleEventClick(event)}
+                  >
                     <h4 className="font-bold">{event.eventName}</h4>
-                    <p><strong>Description:</strong> {event.description}</p>
                     <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
-                    <p><strong>Duration:</strong> {event.duration}</p>
-                    <p><strong>College:</strong> {event.collegeName}</p>
-                    <div className="flex justify-between mt-2">
-                      <button 
-                        className="text-blue-600 hover:underline"
-                        onClick={() => navigate(`/eventCoordinator/edit/${event._id}`)}
-                      >Edit</button>
-                    </div>
                   </div>
                 ))
               ) : (
@@ -131,18 +144,13 @@ const Dashboard = () => {
             <div className="flex flex-wrap justify-center gap-4 mb-4">
               {events.outsideCollege.length > 0 ? (
                 events.outsideCollege.map((event) => (
-                  <div key={event._id} className="border p-4 rounded-md">
+                  <div 
+                    key={event._id} 
+                    className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                    onClick={() => handleEventClick(event)}
+                  >
                     <h4 className="font-bold">{event.eventName}</h4>
-                    <p><strong>Description:</strong> {event.description}</p>
                     <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
-                    <p><strong>Duration:</strong> {event.duration}</p>
-                    <p><strong>College:</strong> {event.collegeName}</p>
-                    <div className="flex justify-between mt-2">
-                      <button 
-                        className="text-blue-600 hover:underline"
-                        onClick={() => navigate(`/eventCoordinator/edit/${event._id}`)}
-                      >Edit</button>
-                    </div>
                   </div>
                 ))
               ) : (
@@ -157,6 +165,26 @@ const Dashboard = () => {
             </button>
           </div>
         </div>
+        {selectedEvent && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative">
+              <h2 className="text-2xl font-bold mb-4">{selectedEvent.eventName}</h2>
+              <p><strong>Description:</strong> {selectedEvent.description}</p>
+              <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
+              <p><strong>Duration:</strong> {selectedEvent.duration}</p>
+              <p><strong>College:</strong> {selectedEvent.collegeName}</p>
+              <p><strong>Registration link:</strong> {selectedEvent.registrationLink}</p>
+              <p><strong>Image:</strong> <img   src={`./backend/eventuploads/${selectedEvent.image}`} 
+     alt={selectedEvent.eventName} className="w-full h-auto mt-2" /></p>
+              <button 
+                className="absolute top-2 right-2 text-red-500"
+                onClick={closeDetails}
+              >
+                &times; {/* Close button */}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

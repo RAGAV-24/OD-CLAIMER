@@ -8,6 +8,7 @@ const EventAddingForm = () => {
     date: '',
     duration: '',
     eventName: '',
+    eventType:'',
     collegeName: '',
     description: '',
     registrationLink: '', // Added registration link
@@ -59,6 +60,7 @@ const EventAddingForm = () => {
       date: '',
       duration: '',
       eventName: '',
+      eventType:'',
       collegeName: '',
       description: '',
       registrationLink: '', // Reset registration link
@@ -89,7 +91,7 @@ const EventAddingForm = () => {
               />
             </div>
 
-            {/* Name */}
+             {/* Name */}
             <div className="flex items-center">
               <label className="w-1/3 font-bold text-gray-700 text-lg">Name</label>
               <input
@@ -101,6 +103,7 @@ const EventAddingForm = () => {
                 required
               />
             </div>
+            
 
             {/* Date */}
             <div className="flex items-center">
@@ -140,6 +143,18 @@ const EventAddingForm = () => {
                 required
               />
             </div>
+            <div className="flex items-center">
+              <label className="w-1/3 font-bold text-gray-700 text-lg">Event Type</label>
+              <input
+                type="text"
+                name="eventType"
+                value={formData.eventType}
+                onChange={handleChange}
+                className="w-2/3 bg-gray-200 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            
 
             {/* College Name */}
             <div className="flex items-center">
