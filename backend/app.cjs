@@ -144,6 +144,7 @@ app.post('/signin', async (req, res) => {
       return res.status(200).json({ message: 'Login successful', data: { userType, student } });
     } else if (userType === 'teacher') {
       const teacherUser = await TeacherPassword.findOne({ email: normalizedEmail });
+      console.log(teacherUser);
       if (!teacherUser) {
         return res.status(401).json({ message: 'Invalid email or password3' });
       }
@@ -151,6 +152,7 @@ app.post('/signin', async (req, res) => {
         return res.status(401).json({ message: 'Invalid email or password4' });
       }
       const teacherData = await TeacherData.findOne({ email: normalizedEmail });
+      console.log(teacherData);
       return res.status(200).json({ message: 'Login successful', data: { userType, teacherData } });
     } 
     else if (userType === 'eventCoordinator') {
@@ -263,15 +265,14 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
     console.error("Error submitting form:", err);
     res.status(500).json({ message: 'Error submitting form', error: err });
   }
-});
-app.post('/odapply', async (req, res) => {
+});app.post('/odapply', async (req, res) => {
   try {
-    const { rollNo, name, date, periods, eventName, collegeName } = req.body;
+    const { rollNumber, name, date, noOfPeriods, eventName, collegeName } = req.body;
     const newForm = new Form2({
-      rollNo,
+      rollNo: rollNumber,  // Ensure the name matches your schema
       name,
       date,
-      periods,
+      periods: noOfPeriods,  // Ensure the name matches your schema
       eventName,
       collegeName
     });
@@ -283,6 +284,7 @@ app.post('/odapply', async (req, res) => {
   }
 });
 
+
 app.get('/api/eventsposted', async (req, res) => {
   try {
     const events = await Event.find();
@@ -291,6 +293,18 @@ app.get('/api/eventsposted', async (req, res) => {
     res.status(500).json({ error: 'Error fetching events' });
   }
 });
+app.get('/api/odapplieslist', async (req, res) => { 
+  try {
+    const records = await Form2.find({});
+    console.log(records); // Check the structure here
+    res.status(200).json(records);
+  } catch (error) {
+    console.error('Error fetching records:', error);
+    res.status(500).json({ error: 'Failed to fetch records' });
+  }
+});
+
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });

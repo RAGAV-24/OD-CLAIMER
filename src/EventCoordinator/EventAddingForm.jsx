@@ -11,11 +11,11 @@ const EventAddingForm = () => {
     eventType:'',
     collegeName: '',
     description: '',
-    registrationLink: '', // Added registration link
+    registrationLink: '',
     image: null,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false); // New: Loading state
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   const handleChange =async (e) => {
     const { name, value, files } = e.target;
@@ -41,7 +41,7 @@ const EventAddingForm = () => {
   
       if (response.ok) {
         const data = await response.json();
-        alert(data.message); // Notify success
+        alert(data.message); 
         resetForm();
       } else {
         const errorData = await response.json();

@@ -14,6 +14,9 @@ import Stats from './TeachersPart/Stats';
 import CoordinatorDashBoard from './EventCoordinator/Dashboard';
 import EventAddingForm from './EventCoordinator/EventAddingForm';
 import Signin from './Signin/Signin';
+import OdApplied from './TeachersPart/OdApplied'   ;
+import OdResponse from './TeachersPart/Odresponse';
+import Odclimed from './TeachersPart/Odclimed';
 
 function App() {
   return (
@@ -35,6 +38,9 @@ function App() {
         <Route path="/eventCoordinator/dashboard" element={<CoordinatorDashBoard />} />
         <Route path="/eventCoordinator/eventform" element={<EventAddingForm />} />
         <Route path="/" element={<Signin />} />
+        <Route path="/teacher/odapply" element={<OdApplied />} />
+        <Route path="/teacher/odresponse" element={<OdResponse />} />
+        <Route path="/teacher/odclaimed" element={<Odclimed />}/>
 
         <Route path="*" element={<h1>Page Not Found</h1>} />
       </Routes>

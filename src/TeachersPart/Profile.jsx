@@ -10,11 +10,13 @@ const Profile = () => {
     const fetchTeacherData = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/teacher');
+        
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        const teacher=data.teachers.email==data.email? data.teachers[0]:data.teachers;
+        
+        const teacher=data.teachers?data.teachers[0]:data.teachers;
         
          setTeacherData(teacher);
         
@@ -26,7 +28,7 @@ const Profile = () => {
     };
 
     fetchTeacherData();
-  }, []);
+  }, [teacherData]);
 
   return (
     <div className="rounded">
