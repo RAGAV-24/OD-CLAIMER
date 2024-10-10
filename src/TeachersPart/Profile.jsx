@@ -14,14 +14,10 @@ const Profile = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
+        const teacher=data.teachers.email==data.email? data.teachers[0]:data.teachers;
         
-        // Since the data comes in an object with a 'teachers' array, adjust accordingly
-        if (data.teachers && data.teachers.length > 0) {
-          // Set the first teacher's data (if multiple teachers exist)
-          setTeacherData(data.teachers[0]);
-        } else {
-          setError("No data found");
-        }
+         setTeacherData(teacher);
+        
       } catch (err) {
         setError(err.message);
       } finally {
