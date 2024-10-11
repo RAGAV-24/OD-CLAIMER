@@ -15,22 +15,21 @@ app.use(express.json());
 app.use(bodyParser.json());
 const storageUploads = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Directory for uploads
+    cb(null, 'uploads/'); 
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)); // Use original file extension
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 const upload = multer({ storage: storageUploads });
 
-// Second storage for event uploads
 const storageEventUploads = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'eventuploads/'); // Directory for event-specific uploads
+    cb(null, 'eventuploads/'); 
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Use the current timestamp for the filename
+    cb(null, Date.now() + path.extname(file.originalname)); 
   }
 });
 const upload1 = multer({ storage: storageEventUploads });
@@ -133,7 +132,7 @@ const odApplicationSchema = new mongoose.Schema({
   periods: { type: Number, required: true },
   eventName: { type: String, required: true },
   collegeName: { type: String, required: true },
-  status: { type: String, default: 'Pending' } // Default status
+  status: { type: String, default: 'Pending' } 
 });
 
 module.exports = mongoose.model('OdApplication', odApplicationSchema);
@@ -215,12 +214,12 @@ app.get('/api/teacher', async (req, res) => {
     console.error("Error fetching teachers:", err);
     res.status(500).json({ message: 'Server error', error: err });
   }
-});// Route for regular uploads
+});
 
 app.post('/api/events', upload1.single('image'), async (req, res) => {
   try {
     const { rollNumber, name, date, duration, eventName,eventType, collegeName, description, registrationLink } = req.body;
-    const image = req.file?.path || ''; // Ensure image file is uploaded
+    const image = req.file?.path || ''; 
 
     const newEvent = new Event({
       rollNumber,
@@ -232,7 +231,7 @@ app.post('/api/events', upload1.single('image'), async (req, res) => {
       collegeName,
       description,
       registrationLink,
-      image, // Save the event image path
+      image,
     });
     console.log(newEvent );
     await newEvent.save();
@@ -257,17 +256,17 @@ app.get('/api/eventcoordinator', async (req, res) => {
 app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'attendancePhoto' }]), async (req, res) => {
   const { name, rollNo, date, periods, eventName, collegeName } = req.body;
   try {
-    const geotagPhoto = req.files['geotagPhoto'][0].path; // Path to the geotag photo
+    const geotagPhoto = req.files['geotagPhoto'][0].path;
     const attendancePhoto = req.files['attendancePhoto'][0].path;
-    const newForm = new Form({ // Use the Form model correctly
+    const newForm = new Form({
       name,
-      rollNo, // Ensure this matches the field in your form
+      rollNo, 
       date,
       periods,
       eventName,
       collegeName,
-      geotagPhoto, // Use the file path
-      attendancePhoto // Use the file path
+      geotagPhoto, 
+      attendancePhoto 
     });
     await newForm.save();
     res.status(201).json({ message: 'Form submitted successfully' });
@@ -275,14 +274,15 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
     console.error("Error submitting form:", err);
     res.status(500).json({ message: 'Error submitting form', error: err });
   }
-});app.post('/odapply', async (req, res) => {
+});
+app.post('/odapply', async (req, res) => {
   try {
     const { rollNumber, name, date, noOfPeriods, eventName, collegeName } = req.body;
     const newForm = new Form2({
-      rollNo: rollNumber,  // Ensure the name matches your schema
+      rollNo: rollNumber,  
       name,
       date,
-      periods: noOfPeriods,  // Ensure the name matches your schema
+      periods: noOfPeriods, 
       eventName,
       collegeName
     });
@@ -306,7 +306,7 @@ app.get('/api/eventsposted', async (req, res) => {
 app.get('/api/odapplieslist', async (req, res) => { 
   try {
     const records = await Form2.find({});
-    console.log(records); // Check the structure here
+    console.log(records); 
     res.status(200).json(records);
   } catch (error) {
     console.error('Error fetching records:', error);
@@ -316,34 +316,31 @@ app.get('/api/odapplieslist', async (req, res) => {
 app.post('/api/odapply', async (req, res) => {
   try {
     const { rollNo, name, periods, eventName, collegeName } = req.body;
-
-    // Create a new application entry
     const newApplication = new OdApplication({
       rollNo,
       name,
       periods,
       eventName,
       collegeName,
-      status: 'Pending' // Initial status
+      status: 'Pending' 
     });
 
-    await newApplication.save(); // Save to database
-    res.status(201).send(newApplication); // Send response with the created entry
+    await newApplication.save(); 
+    res.status(201).send(newApplication); 
   } catch (error) {
     console.error('Error adding OD application:', error);
     res.status(500).send({ message: 'Server error' });
   }
 });
 
-// Update OD application status
 app.put('/api/odapply', async (req, res) => {
   const { rollNo, status } = req.body;
 
   try {
     const updatedApplication = await OdApplication.findOneAndUpdate(
-      { rollNo }, // Find by roll number
-      { status }, // Update status
-      { new: true } // Return the updated document
+      { rollNo }, 
+      { status }, 
+      { new: true } 
     );
 
     if (!updatedApplication) {

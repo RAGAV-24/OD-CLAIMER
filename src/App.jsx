@@ -21,7 +21,7 @@ import Odclimed from './TeachersPart/Odclimed';
 function App() {
   return (
     <div>
-   <div className="absolute inset-0 -z-10 min-h-screen w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
+   <div className="absolute inset-0 -z-10 min-h-screen w-full bg-white bg-cover bg-center bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]"></div>
    <Router>
       <Routes>
         <Route path="/student/dashboard" element={<StudentDashboard />} />
