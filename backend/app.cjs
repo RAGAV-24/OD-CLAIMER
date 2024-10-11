@@ -126,16 +126,18 @@ const formSchemas = new mongoose.Schema({
   collegeName: String
 });
 const Form2 = mongoose.model('odApply', formSchemas);
-const odApplicationSchema = new mongoose.Schema({
-  rollNo: { type: String, required: true },
-  name: { type: String, required: true },
-  periods: { type: Number, required: true },
-  eventName: { type: String, required: true },
-  collegeName: { type: String, required: true },
-  status: { type: String, default: 'Pending' } 
+
+const newOdSchema = new mongoose.Schema({
+  rollNo: String,
+  name: String,
+  periods: Number,
+  eventName: String,
+  collegeName: String,
+  status: { type: String, enum: ['Accepted', 'Declined', 'Pending'], default: 'Pending' } // Add the status field
 });
 
-module.exports = mongoose.model('OdApplication', odApplicationSchema);
+const NewOdCollection = mongoose.model('NewOdCollection', newOdSchema);
+
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
   try {
@@ -313,47 +315,37 @@ app.get('/api/odapplieslist', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch records' });
   }
 });
-app.post('/api/odapply', async (req, res) => {
-  try {
-    const { rollNo, name, periods, eventName, collegeName } = req.body;
-    const newApplication = new OdApplication({
-      rollNo,
-      name,
-      periods,
-      eventName,
-      collegeName,
-      status: 'Pending' 
-    });
-
-    await newApplication.save(); 
-    res.status(201).send(newApplication); 
-  } catch (error) {
-    console.error('Error adding OD application:', error);
-    res.status(500).send({ message: 'Server error' });
-  }
-});
-
-app.put('/api/odapply', async (req, res) => {
+app.post('/api/new-od-collection', async (req, res) => {
   const { rollNo, status } = req.body;
 
   try {
-    const updatedApplication = await OdApplication.findOneAndUpdate(
-      { rollNo }, 
-      { status }, 
-      { new: true } 
-    );
+    // Fetch the existing record from Form2 (original collection)
+    const existingRecord = await Form2.findOne({ rollNo });
 
-    if (!updatedApplication) {
-      return res.status(404).send({ message: 'Application not found' });
+    if (!existingRecord) {
+      return res.status(404).json({ message: 'Record not found' });
     }
 
-    res.send(updatedApplication); // Send response with the updated entry
+    // Create a new record in the NewOdCollection with the status field
+    const newRecord = new NewOdCollection({
+      rollNo: existingRecord.rollNo,
+      name: existingRecord.name,
+      periods: existingRecord.periods,
+      eventName: existingRecord.eventName,
+      collegeName: existingRecord.collegeName,
+      status: status  // Set the status to Accepted or Declined
+    });
+
+    // Save the new record in the new collection
+    await newRecord.save();
+
+    // Return success response
+    res.status(201).json({ message: 'Record saved to new collection', newRecord });
   } catch (error) {
-    console.error('Error updating OD application:', error);
-    res.status(500).send({ message: 'Server error' });
+    console.error('Error updating OD status:', error);
+    res.status(500).json({ message: 'Failed to update status' });
   }
 });
-
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });

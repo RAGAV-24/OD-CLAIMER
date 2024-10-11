@@ -25,31 +25,27 @@ const OdApplied = () => {
     fetchOdRecords();
   }, []);
 
-  // Function to create a new OD application
-  const createOdApplication = async (applicationData) => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/odapply', applicationData);
-      setOdRecords((prevRecords) => [...prevRecords, response.data]); // Add new application to state
-    } catch (error) {
-      console.error('Error creating OD application:', error);
-      alert('Failed to create OD application.');
-    }
-  };
-
   // Function to update status in the new collection
-  const handleStatusUpdate = async (rollNo, newStatus) => {
+  const handleStatusUpdate = async (record, newStatus) => {
     try {
+      // Prepare updated data to be sent to the backend
       const updatedData = {
-        rollNo,
-        status: newStatus,
+        rollNo: record.rollNo,
+        name: record.name,
+        periods: record.periods,
+        eventName: record.eventName,
+        collegeName: record.collegeName,
+        status: newStatus // Update status based on button clicked
       };
-      // Assuming you have an endpoint to create a new record in the new collection
+
+      // Post the updated record to the new collection
       await axios.post('http://localhost:5000/api/new-od-collection', updatedData);
-      // Update local state after status update
+
+      // Update local state to filter out the accepted or declined records
       setOdRecords((prevRecords) =>
-        prevRecords.map((record) =>
-          record.rollNo === rollNo ? { ...record, status: newStatus } : record
-        )
+        prevRecords.map((r) =>
+          r.rollNo === record.rollNo ? { ...r, status: newStatus } : r
+        ).filter((r) => r.status !== 'Accepted' && r.status !== 'Declined')
       );
     } catch (error) {
       console.error('Error updating approval:', error);
@@ -88,20 +84,28 @@ const OdApplied = () => {
                 <td className="px-4 py-2 text-gray-800">{record.eventName}</td>
                 <td className="px-4 py-2 text-gray-800">{record.collegeName}</td>
                 <td className="px-4 py-2 text-center">
-                  <button
-                    className={`mr-2 ${record.status === 'Accepted' ? 'text-green-500' : 'text-green-400'} hover:text-green-700`}
-                    onClick={() => handleStatusUpdate(record.rollNo, 'Accepted')}
-                    disabled={record.status === 'Accepted'}
-                  >
-                    <FaCheck />
-                  </button>
-                  <button
-                    className={`text-red-500 hover:text-red-700 ${record.status === 'Declined' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={() => handleStatusUpdate(record.rollNo, 'Declined')}
-                    disabled={record.status === 'Declined'}
-                  >
-                    <FaTimes />
-                  </button>
+                  {record.status ? (
+                    <span className={`font-bold ${record.status === 'Accepted' ? 'text-green-500' : 'text-red-500'}`}>
+                      {record.status}
+                    </span>
+                  ) : (
+                    <>
+                      <button
+                        className={`mr-2 ${record.status === 'Accepted' ? 'text-green-500' : 'text-green-400'} hover:text-green-700`}
+                        onClick={() => handleStatusUpdate(record, 'Accepted')}
+                        disabled={record.status === 'Accepted'}
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        className={`text-red-500 hover:text-red-700 ${record.status === 'Declined' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => handleStatusUpdate(record, 'Declined')}
+                        disabled={record.status === 'Declined'}
+                      >
+                        <FaTimes />
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))
