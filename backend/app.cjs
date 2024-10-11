@@ -346,6 +346,14 @@ app.post('/api/new-od-collection', async (req, res) => {
     res.status(500).json({ message: 'Failed to update status' });
   }
 });
+app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part 
+  try {
+    const ev = await NewOdCollection.find();
+    res.json(ev);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching events' });
+  }
+});
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
