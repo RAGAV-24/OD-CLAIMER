@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import Navbar from './Navbar';
-import { Pie } from 'react-chartjs-2';  // Import the Pie chart component from react-chartjs-2
+import { Pie } from 'react-chartjs-2'; // Import the Pie chart component from react-chartjs-2
 import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
-  Legend
-} from 'chart.js';  // Import necessary components from chart.js
+  Legend,
+} from 'chart.js'; // Import necessary components from chart.js
 
-import 'chart.js/auto';  // Import chart.js to ensure everything is auto-registered
+import 'chart.js/auto'; // Import chart.js to ensure everything is auto-registered
+import axios from 'axios'; // Import axios for making HTTP requests
 
 // Register chart elements
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -21,20 +22,88 @@ const Addup = () => {
   const [coordinatorCredFile, setCoordinatorCredFile] = useState(null);
 
   // File upload handlers
-  const handleStudentDataUpload = (event) => {
-    setStudentDataFile(event.target.files[0]);
+  const handleStudentDataUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Send the file to the backend
+        const response = await axios.post('http://localhost:1000/upload-student-data', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log(response.data); // Handle success message
+        setStudentDataFile(file); // Update state to reflect uploaded file
+      } catch (error) {
+        console.error('Error uploading student data file:', error); // Handle error message
+      }
+    }
   };
 
-  const handleStudentCredUpload = (event) => {
-    setStudentCredFile(event.target.files[0]);
+  const handleStudentCredUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Send the file to the backend
+        const response = await axios.post('http://localhost:2000/upload-student-credentials', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log(response.data); // Handle success message
+        setStudentCredFile(file); // Update state to reflect uploaded file
+      } catch (error) {
+        console.error('Error uploading student credentials file:', error); // Handle error message
+      }
+    }
   };
 
-  const handleCoordinatorDataUpload = (event) => {
-    setCoordinatorDataFile(event.target.files[0]);
+  const handleCoordinatorDataUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Send the file to the backend
+        const response = await axios.post('http://localhost:3000/upload-event-coordinator-data', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log(response.data); // Handle success message
+        setCoordinatorDataFile(file); // Update state to reflect uploaded file
+      } catch (error) {
+        console.error('Error uploading coordinator data file:', error); // Handle error message
+      }
+    }
   };
 
-  const handleCoordinatorCredUpload = (event) => {
-    setCoordinatorCredFile(event.target.files[0]);
+  const handleCoordinatorCredUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Send the file to the backend
+        const response = await axios.post('http://localhost:4000/upload-event-coordinator-passwords', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log(response.data); // Handle success message
+        setCoordinatorCredFile(file); // Update state to reflect uploaded file
+      } catch (error) {
+        console.error('Error uploading coordinator credentials file:', error); // Handle error message
+      }
+    }
   };
 
   // Example Pie chart data
@@ -50,14 +119,13 @@ const Addup = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       <div className="py-4 min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
         <Navbar />
 
-        <div className="p-8 flex justify-center">
+        <div className=" flex justify-center">
           {/* Main container divided into two columns */}
           <div className="bg-purple-400 flex flex-row justify-between min-h-[300px] w-[80%] p-8 rounded-lg shadow-lg">
-            
             {/* Left Side - Text Section */}
             <div className="flex-1 text-white text-lg font-semibold">
               {/* Student Data Add Up */}
@@ -80,8 +148,8 @@ const Addup = () => {
                 </div>
               )}
 
-              {/* Student UserName Password Data Add Up */}
-              <div className="mb-6 mt-6">Student UserName Password Data Add Up</div>
+              {/* Student Username Password Data Add Up */}
+              <div className="mb-6 mt-6">Student Username Password Data Add Up</div>
               <input
                 type="file"
                 id="studentCredInput"
@@ -120,8 +188,8 @@ const Addup = () => {
                 </div>
               )}
 
-              {/* Coordinator Password and UserName Data Add Up */}
-              <div className="mb-6 mt-6">Coordinator Password and UserName Data Add Up</div>
+              {/* Coordinator Username Password Data Add Up */}
+              <div className="mb-6 mt-6">Coordinator Username Password Data Add Up</div>
               <input
                 type="file"
                 id="coordinatorCredInput"
@@ -142,10 +210,9 @@ const Addup = () => {
             </div>
 
             {/* Right Side - Pie Chart Section */}
-            <div className="flex-1 flex justify-center items-center">
+            <div className="flex-1 flex justify-center items-center" style={{ width: '400px', height: '400px' }}>
               <Pie data={pieData} />
             </div>
-
           </div>
         </div>
       </div>
