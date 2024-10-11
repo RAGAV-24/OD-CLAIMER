@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema({
   userType: { type: String, default: 'student' } // Assuming all are students
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('users', UserSchema);
 
 // Initialize express app
 const app = express();

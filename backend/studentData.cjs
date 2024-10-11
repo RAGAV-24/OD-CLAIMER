@@ -52,7 +52,7 @@ const studentSchema = new mongoose.Schema({
   mode: { type: String, required: true },
 });
 
-const Student = mongoose.model('Student', studentSchema);
+const Student = mongoose.model('students', studentSchema);
 
 // Upload CSV endpoint
 app.post('/upload-student-data', upload.single('file'), (req, res) => {

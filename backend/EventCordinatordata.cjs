@@ -52,7 +52,7 @@ const eventCoordinatorSchema = new mongoose.Schema({
   college: { type: String, required: true },
 });
 
-const EventCoordinator = mongoose.model('EventCoordinatorsData', eventCoordinatorSchema);
+const EventCoordinator = mongoose.model('eventcoordinatorsdatas', eventCoordinatorSchema);
 
 // Upload Event Coordinator Data CSV endpoint
 app.post('/upload-event-coordinator-data', upload.single('file'), (req, res) => {
