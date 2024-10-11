@@ -46,6 +46,20 @@ const Events = () => {
     setSelectedEvent(null);
   };
 
+  // Function to determine background color based on the event date
+  const getEventClassName = (eventDate) => {
+    const today = new Date();
+    const eventDay = new Date(eventDate);
+
+    if (eventDay < today) {
+      return 'bg-red-300'; // Past events - red
+    } else if (eventDay.toDateString() === today.toDateString() || eventDay.toDateString() === new Date(today.setDate(today.getDate() + 1)).toDateString()) {
+      return 'bg-yellow-300'; // Today or tomorrow - yellow
+    } else {
+      return 'bg-green-300'; // Future events - green
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
@@ -66,7 +80,7 @@ const Events = () => {
                   events.insideCollege.map(event => (
                     <div 
                       key={event._id} 
-                      className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                      className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                       onClick={() => handleEventClick(event)}
                     >
                       <h4 className="font-bold">{event.eventName}</h4>
@@ -87,7 +101,7 @@ const Events = () => {
                   events.outsideCollege.map(event => (
                     <div 
                       key={event._id} 
-                      className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                      className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                       onClick={() => handleEventClick(event)}
                     >
                       <h4 className="font-bold">{event.eventName}</h4>

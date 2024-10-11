@@ -21,12 +21,9 @@ const Dashboard = () => {
     setDate(newDate);
     const dateString = newDate.toDateString();
 
-    // Mark the date if it's not already marked
     if (!markedDates.includes(dateString)) {
       const updatedMarkedDates = [...markedDates, dateString];
       setMarkedDates(updatedMarkedDates);
-
-      // Save marked dates to localStorage
       localStorage.setItem('markedDates', JSON.stringify(updatedMarkedDates));
     }
   };
@@ -59,7 +56,7 @@ const Dashboard = () => {
           outsideCollege: outsideCollegeEvents,
         });
       } catch (err) {
-        setError("Error fetching data. Please try again later.",err);
+        setError("Error fetching data. Please try again later.", err);
         setProfileData({});
       } finally {
         setIsLoading(false);
@@ -68,7 +65,6 @@ const Dashboard = () => {
 
     fetchData();
 
-   // localStorage.clear();
     const storedDates = JSON.parse(localStorage.getItem('markedDates')) || [];
     setMarkedDates(storedDates);
   }, []);
@@ -92,6 +88,21 @@ const Dashboard = () => {
       return 'bg-red-300 text-white rounded w-10px';
     }
     return '';
+  };
+
+  // Function to get the class based on the event's date
+  const getEventClassName = (eventDate) => {
+    const today = new Date();
+    const eventDateTime = new Date(eventDate).getTime();
+    const differenceInDays = (eventDateTime - today.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (differenceInDays < 0) {
+      return 'bg-red-400 text-white'; // Past event
+    } else if (differenceInDays < 1) {
+      return 'bg-yellow-400 text-black'; // Event is tomorrow or today
+    } else {
+      return 'bg-green-400 text-white'; // Upcoming event
+    }
   };
 
   return (
@@ -139,7 +150,7 @@ const Dashboard = () => {
                 events.insideCollege.map((event) => (
                   <div 
                     key={event._id} 
-                    className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                    className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                     onClick={() => handleEventClick(event)}
                   >
                     <h4 className="font-bold">{event.eventName}</h4>
@@ -165,7 +176,7 @@ const Dashboard = () => {
                 events.outsideCollege.map((event) => (
                   <div 
                     key={event._id} 
-                    className="border p-4 rounded-md cursor-pointer hover:bg-gray-300"
+                    className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                     onClick={() => handleEventClick(event)}
                   >
                     <h4 className="font-bold">{event.eventName}</h4>
@@ -191,15 +202,12 @@ const Dashboard = () => {
               <p><strong>Description:</strong> {selectedEvent.description}</p>
               <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
               <p><strong>Duration:</strong> {selectedEvent.duration}</p>
-              <p><strong>College:</strong> {selectedEvent.collegeName}</p>
-              <p><strong>Registration Link:</strong> <a href={selectedEvent.registrationLink} className="text-blue-500 underline">{selectedEvent.registrationLink}</a></p>
+              <p><strong>Guests:</strong> {selectedEvent.guests}</p>
               <button 
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                onClick={closeDetails}
+                onClick={closeDetails} 
+                className="absolute top-0 right-0 mt-2 mr-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                &times;
               </button>
             </div>
           </div>
