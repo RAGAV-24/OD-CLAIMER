@@ -127,6 +127,16 @@ const formSchemas = new mongoose.Schema({
   collegeName: String
 });
 const Form2 = mongoose.model('odApply', formSchemas);
+const odApplicationSchema = new mongoose.Schema({
+  rollNo: { type: String, required: true },
+  name: { type: String, required: true },
+  periods: { type: Number, required: true },
+  eventName: { type: String, required: true },
+  collegeName: { type: String, required: true },
+  status: { type: String, default: 'Pending' } // Default status
+});
+
+module.exports = mongoose.model('OdApplication', odApplicationSchema);
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
   try {
@@ -303,7 +313,49 @@ app.get('/api/odapplieslist', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch records' });
   }
 });
+app.post('/api/odapply', async (req, res) => {
+  try {
+    const { rollNo, name, periods, eventName, collegeName } = req.body;
 
+    // Create a new application entry
+    const newApplication = new OdApplication({
+      rollNo,
+      name,
+      periods,
+      eventName,
+      collegeName,
+      status: 'Pending' // Initial status
+    });
+
+    await newApplication.save(); // Save to database
+    res.status(201).send(newApplication); // Send response with the created entry
+  } catch (error) {
+    console.error('Error adding OD application:', error);
+    res.status(500).send({ message: 'Server error' });
+  }
+});
+
+// Update OD application status
+app.put('/api/odapply', async (req, res) => {
+  const { rollNo, status } = req.body;
+
+  try {
+    const updatedApplication = await OdApplication.findOneAndUpdate(
+      { rollNo }, // Find by roll number
+      { status }, // Update status
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedApplication) {
+      return res.status(404).send({ message: 'Application not found' });
+    }
+
+    res.send(updatedApplication); // Send response with the updated entry
+  } catch (error) {
+    console.error('Error updating OD application:', error);
+    res.status(500).send({ message: 'Server error' });
+  }
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -14,11 +14,8 @@ const Od = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Top Navbar */}
+    <div className="min-h-screen">
       <Navbar />
-
-      {/* Second Navbar with options */}
       <div className="container mx-auto px-4 py-6">
         <nav className=  "text-black rounded-lg p-4 font-bold">
           <ul className="flex flex-col sm:flex-row justify-around gap-4">

@@ -69,13 +69,12 @@ const EventAddingForm = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-violet-400 bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
+    <div className="py-4 min-h-screen w-full bg-violet-400  [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
-      <div className="flex items-center justify-center h-[calc(100vh-64px)] py-12 px-4"> {/* Adjust height for the navbar */}
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] "> {/* Adjust height for the navbar */}
         <div className="w-full max-w-lg" style={{ marginTop: '100px' }}>
           <h1 className="text-2xl font-bold mb-8 text-gray-800">Adding EVENT</h1>
-          <hr className="border-black w-16 mb-6" />
-
+         
           {/* Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Roll Number */}
