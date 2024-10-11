@@ -55,6 +55,4 @@ const importUsers = async () => {
     console.error('Error importing users:', error);
   }
 };
-
-// Run the import function
 importUsers();
