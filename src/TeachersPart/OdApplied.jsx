@@ -25,7 +25,7 @@ const OdApplied = () => {
     fetchOdRecords();
   }, []);
 
-  // Function to update status in the new collection
+  // Function to update the status in the new collection and delete the record from the current one
   const handleStatusUpdate = async (record, newStatus) => {
     try {
       // Prepare updated data to be sent to the backend
@@ -35,18 +35,29 @@ const OdApplied = () => {
         periods: record.periods,
         eventName: record.eventName,
         collegeName: record.collegeName,
-        status: newStatus // Update status based on button clicked
+        status: newStatus // Update status based on button clicked (Accepted or Declined)
       };
 
       // Post the updated record to the new collection
       await axios.post('http://localhost:5000/api/new-od-collection', updatedData);
 
-      // Update local state to filter out the accepted or declined records
+      // Delete the original record from the current collection
+      await axios.delete('http://localhost:5000/api/delete-od-record', {
+        data: {
+          rollNo: record.rollNo,
+          name: record.name,
+          periods: record.periods,
+          eventName: record.eventName,
+          collegeName: record.collegeName,
+        },
+      });
+
+      // Update local state to remove the record from the list
       setOdRecords((prevRecords) =>
-        prevRecords.map((r) =>
-          r.rollNo === record.rollNo ? { ...r, status: newStatus } : r
-        ).filter((r) => r.status !== 'Accepted' && r.status !== 'Declined')
+        prevRecords.filter((r) => r.rollNo !== record.rollNo)
       );
+
+      alert(`Record ${newStatus} and processed successfully`);
     } catch (error) {
       console.error('Error updating approval:', error);
       alert('Failed to update OD application status.');
@@ -84,28 +95,20 @@ const OdApplied = () => {
                 <td className="px-4 py-2 text-gray-800">{record.eventName}</td>
                 <td className="px-4 py-2 text-gray-800">{record.collegeName}</td>
                 <td className="px-4 py-2 text-center">
-                  {record.status ? (
-                    <span className={`font-bold ${record.status === 'Accepted' ? 'text-green-500' : 'text-red-500'}`}>
-                      {record.status}
-                    </span>
-                  ) : (
-                    <>
-                      <button
-                        className={`mr-2 ${record.status === 'Accepted' ? 'text-green-500' : 'text-green-400'} hover:text-green-700`}
-                        onClick={() => handleStatusUpdate(record, 'Accepted')}
-                        disabled={record.status === 'Accepted'}
-                      >
-                        <FaCheck />
-                      </button>
-                      <button
-                        className={`text-red-500 hover:text-red-700 ${record.status === 'Declined' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        onClick={() => handleStatusUpdate(record, 'Declined')}
-                        disabled={record.status === 'Declined'}
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  )}
+                  <>
+                    <button
+                      className="mr-2 text-green-500 hover:text-green-700"
+                      onClick={() => handleStatusUpdate(record, 'Accepted')} // Handle accept and update status
+                    >
+                      <FaCheck />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleStatusUpdate(record, 'Declined')} // Handle decline and update status
+                    >
+                      <FaTimes />
+                    </button>
+                  </>
                 </td>
               </tr>
             ))

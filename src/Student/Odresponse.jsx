@@ -47,7 +47,7 @@ const Odresponse = () => {
       <Navbar />
       <div className="flex items-center justify-center h-[calc(100vh-64px)] py-12 px-4">
         <div className="w-full max-w-lg">
-          <h1 className="text-2xl font-bold mb-8 text-gray-800">Apply OD</h1>
+          <h1 className="text-2xl font-bold mb-8 text-gray-800">Student Response Form</h1>
           <hr className="border-black w-16 mb-6" />
 
           <form className="space-y-6" onSubmit={handleSubmit}>

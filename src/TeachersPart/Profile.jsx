@@ -6,17 +6,24 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+
+
+
   useEffect(() => {
     const fetchTeacherData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/teacher');
+        const response = await fetch('http://localhost:5000/api/teacher', {
+          method: 'GET',
+        });
         
         if (!response.ok) {
+
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        
-        const teacher=data.teachers?data.teachers[0]:data.teachers;
+        console.log(data);
+        const teacher = data.teachers ? data.teachers[0] : data.teachers;
         
          setTeacherData(teacher);
         

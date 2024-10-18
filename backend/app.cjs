@@ -163,6 +163,7 @@ app.post('/signin', async (req, res) => {
         return res.status(401).json({ message: 'Invalid email or password4' });
       }
       const teacherData = await TeacherData.findOne({ email: normalizedEmail });
+     
       console.log(teacherData);
       return res.status(200).json({ message: 'Login successful', data: { userType, teacherData } });
     } 
@@ -296,7 +297,6 @@ app.post('/odapply', async (req, res) => {
   }
 });
 
-
 app.get('/api/eventsposted', async (req, res) => {
   try {
     const events = await Event.find();
@@ -313,6 +313,41 @@ app.get('/api/odapplieslist', async (req, res) => {
   } catch (error) {
     console.error('Error fetching records:', error);
     res.status(500).json({ error: 'Failed to fetch records' });
+  }
+});
+
+
+app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part 
+  try {
+    const ev = await NewOdCollection.find();
+    res.json(ev);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching events' });
+  }
+});
+ // Route to delete an OD record when all fields match
+app.delete('/api/delete-od-record', async (req, res) => {
+  const { rollNo, name, periods, eventName, collegeName } = req.body;
+
+  try {
+    // Find and delete the record that matches all the provided fields
+    const deletedRecord = await Form2.findOneAndDelete({
+      rollNo: rollNo,
+      name: name,
+      periods: periods,
+      eventName: eventName,
+      collegeName: collegeName
+    });
+
+    if (!deletedRecord) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    // Successfully deleted the record
+    res.status(200).json({ message: 'Record deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting record:', error);
+    res.status(500).json({ error: 'Failed to delete record' });
   }
 });
 app.post('/api/new-od-collection', async (req, res) => {
@@ -339,21 +374,17 @@ app.post('/api/new-od-collection', async (req, res) => {
     // Save the new record in the new collection
     await newRecord.save();
 
+    // Delete the original record from Form2 after saving to the new collection
+    await Form2.findOneAndDelete({ rollNo });
+
     // Return success response
-    res.status(201).json({ message: 'Record saved to new collection', newRecord });
+    res.status(201).json({ message: 'Record saved to new collection and deleted from original collection', newRecord });
   } catch (error) {
     console.error('Error updating OD status:', error);
-    res.status(500).json({ message: 'Failed to update status' });
+    res.status(500).json({ message: 'Failed to update and delete record' });
   }
 });
-app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part 
-  try {
-    const ev = await NewOdCollection.find();
-    res.json(ev);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching events' });
-  }
-});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
