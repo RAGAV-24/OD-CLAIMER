@@ -3,18 +3,49 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-
 const app = express();
+const path = require('path');
+const multer = require('multer');
 const PORT = process.env.PORT || 5000;
-
-// Middleware
+const router = express.Router();
 app.use(cors({
   origin: 'http://localhost:5173',
 }));
 app.use(express.json());
 app.use(bodyParser.json());
+const storageUploads = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); 
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storageUploads });
 
-// MongoDB connection string
+const storageEventUploads = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'eventuploads/'); 
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); 
+  }
+});
+const upload1 = multer({ storage: storageEventUploads });
+const eventSchema = new mongoose.Schema({
+rollNumber: String,
+name: String,
+date: String,
+duration: String,
+eventName: String,
+eventType: String,
+collegeName: String,
+description: String,
+registrationLink: String,
+image: String,
+});
+const Event = mongoose.model('Event', eventSchema);
 const uri = 'mongodb+srv://ragavr33:rudu007@student.mrg3e.mongodb.net/ODClaimerDB?retryWrites=true&w=majority';
 mongoose.connect(uri)
   .then(() => {
@@ -23,17 +54,12 @@ mongoose.connect(uri)
   .catch(err => {
     console.error("MongoDB connection error:", err);
   });
-
-// Define the User model (for students)
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  userType: { type: String, required: true }, // e.g., 'student', 'teacher', 'event_coordinator'
+  userType: { type: String, required: true },
 });
-
 const User = mongoose.model('User', userSchema);
-
-// Define the Student model
 const studentSchema = new mongoose.Schema({
   rollNumber: { type: String, required: true },
   name: { type: String, required: true },
@@ -45,18 +71,13 @@ const studentSchema = new mongoose.Schema({
   classAdvisor: { type: String, required: true },
   mode: { type: String, required: true },
 });
-
 const Student = mongoose.model('Student', studentSchema);
-
-// Define the Teacher model (for authentication)
 const teacherPasswordSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  userType: { type: String, required: true }, // e.g., 'teacher'
+  userType: { type: String, required: true },
 });
-
 const TeacherPassword = mongoose.model('teacherspasswords', teacherPasswordSchema);
-
 const teacherDataSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -65,65 +86,105 @@ const teacherDataSchema = new mongoose.Schema({
   dob: { type: String, required: true },
   college: { type: String, required: true },
 });
-
 const TeacherData = mongoose.model('teachersdatas', teacherDataSchema);
+const eventCoordinatorPasswordSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  userType: { type: String, required: true }, 
+});
+const EventCoordinatorPassword = mongoose.model('eventcoordinatorpasswords', eventCoordinatorPasswordSchema);
+const eventCoordinatorSchema = new mongoose.Schema({
+  timestamp: { type: String, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  address: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
+  rollNo: { type: String, required: true },
+  club: { type: String, required: true },
+  position: { type: String, required: true },
+  college: { type: String, required: true },
+});
+const EventCoordinator = mongoose.model('eventcoordinatorsdatas', eventCoordinatorSchema);
+const formSchema = new mongoose.Schema({
+  name: { type: String, required: true },          // Student name
+  rollNo: { type: String, required: true },        // Roll number (allow duplicates)
+  date: { type: Date, required: true },            // Date of event
+  periods: { type: Number, required: true },       // Number of periods
+  eventName: { type: String, required: true },     // Event name
+  collegeName: { type: String, required: true },   // Name of the college
+  geotagPhoto: { type: String, required: true },   // Geotag photo URL or path
+  attendancePhoto: { type: String, required: true },// Attendance sheet photo URL or path
+  submittedAt: { type: Date, default: Date.now }   // Submission timestamp
+});
+const Form = mongoose.model('StudentForm', formSchema); // Ensure you keep this line
+const formSchemas = new mongoose.Schema({
+  rollNo: String,
+  name: String,
+  date: Date,
+  periods: Number,
+  eventName: String,
+  collegeName: String
+});
+const Form2 = mongoose.model('odApply', formSchemas);
 
-// Route to handle sign-in
+const newOdSchema = new mongoose.Schema({
+  rollNo: String,
+  name: String,
+  periods: Number,
+  eventName: String,
+  collegeName: String,
+  status: { type: String, enum: ['Accepted', 'Declined', 'Pending'], default: 'Pending' } // Add the status field
+});
+
+const NewOdCollection = mongoose.model('NewOdCollection', newOdSchema);
+
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
-
   try {
     const normalizedEmail = email.toLowerCase();
-
-    // Check if the userType is 'student'
     if (userType === 'student') {
       const user = await User.findOne({ email: normalizedEmail });
-
       if (!user) {
         return res.status(401).json({ message: 'Invalid email or password1' });
       }
-
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(401).json({ message: 'Invalid email or password2' });
       }
-
-      // Fetch student details
       const student = await Student.findOne({ email: normalizedEmail });
       return res.status(200).json({ message: 'Login successful', data: { userType, student } });
-
-    // Check if the userType is 'teacher'
     } else if (userType === 'teacher') {
       const teacherUser = await TeacherPassword.findOne({ email: normalizedEmail });
-
+      console.log(teacherUser);
       if (!teacherUser) {
         return res.status(401).json({ message: 'Invalid email or password3' });
       }
-
-      // Compare plain password for teachers (no bcrypt)
       if (password !== teacherUser.password) {
         return res.status(401).json({ message: 'Invalid email or password4' });
       }
-
-      // Fetch teacher details
       const teacherData = await TeacherData.findOne({ email: normalizedEmail });
+     
+      console.log(teacherData);
       return res.status(200).json({ message: 'Login successful', data: { userType, teacherData } });
-
-    // Handle other user types like event coordinator
-    } else if (userType === 'event_coordinator') {
-      // Logic for event coordinator login (if applicable)
+    } 
+    else if (userType === 'eventCoordinator') {
+      const eventCoordinatorUser = await EventCoordinatorPassword.findOne({ email: normalizedEmail });
+      if (!eventCoordinatorUser) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+      if (password !== eventCoordinatorUser.password) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+      const eventCoordinatorData = await EventCoordinator.findOne({ email: normalizedEmail });
+      return res.status(200).json({ message: 'Login successful', data: { userType, eventCoordinatorData } });
     }
-
   } catch (err) {
     console.error("Sign-in error:", err);
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-
-// Route to handle sign-up (only for students)
 app.post('/signup', async (req, res) => {
   const { email, password, userType } = req.body;
-
   try {
     const normalizedEmail = email.toLowerCase();
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -132,7 +193,6 @@ app.post('/signup', async (req, res) => {
       password: hashedPassword,
       userType,
     });
-
     await newUser.save();
     res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
@@ -140,8 +200,6 @@ app.post('/signup', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-
-// Route to get all students (fix for 404 error)
 app.get('/api/students', async (req, res) => {
   try {
     const students = await Student.find();
@@ -151,14 +209,186 @@ app.get('/api/students', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
+app.get('/api/teacher', async (req, res) => {
+  try {
+    const teachers = await TeacherData.find(); 
+    res.status(200).json({ message: 'Teachers fetched successfully', teachers });
+  } catch (err) {
+    console.error("Error fetching teachers:", err);
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
 
-// Error handling middleware
+app.post('/api/events', upload1.single('image'), async (req, res) => {
+  try {
+    const { rollNumber, name, date, duration, eventName,eventType, collegeName, description, registrationLink } = req.body;
+    const image = req.file?.path || ''; 
+
+    const newEvent = new Event({
+      rollNumber,
+      name,
+      date,
+      duration,
+      eventName,
+      eventType,
+      collegeName,
+      description,
+      registrationLink,
+      image,
+    });
+    console.log(newEvent );
+    await newEvent.save();
+    res.status(201).json({ message: 'Event added successfully!' });
+  } catch (error) {
+    console.error('Error adding event:', error);
+    res.status(500).json({ message: 'Error adding event', error });
+  }
+});
+
+
+app.get('/api/eventcoordinator', async (req, res) => {
+  try {
+    const eventcoordinator = await EventCoordinator.find();
+    console.log(eventcoordinator);
+    res.status(200).json({ message: 'Event Coordinator fetched successfully', eventcoordinator });
+  } catch (err) {
+    console.error("Error fetching EventCoordinator:", err);
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'attendancePhoto' }]), async (req, res) => {
+  const { name, rollNo, date, periods, eventName, collegeName } = req.body;
+  try {
+    const geotagPhoto = req.files['geotagPhoto'][0].path;
+    const attendancePhoto = req.files['attendancePhoto'][0].path;
+    const newForm = new Form({
+      name,
+      rollNo, 
+      date,
+      periods,
+      eventName,
+      collegeName,
+      geotagPhoto, 
+      attendancePhoto 
+    });
+    await newForm.save();
+    res.status(201).json({ message: 'Form submitted successfully' });
+  } catch (err) {
+    console.error("Error submitting form:", err);
+    res.status(500).json({ message: 'Error submitting form', error: err });
+  }
+});
+app.post('/odapply', async (req, res) => {
+  try {
+    const { rollNumber, name, date, noOfPeriods, eventName, collegeName } = req.body;
+    const newForm = new Form2({
+      rollNo: rollNumber,  
+      name,
+      date,
+      periods: noOfPeriods, 
+      eventName,
+      collegeName
+    });
+    await newForm.save();
+    res.status(200).json({ message: 'Form submitted successfully' });
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    res.status(500).json({ error: 'Failed to submit form' });
+  }
+});
+
+app.get('/api/eventsposted', async (req, res) => {
+  try {
+    const events = await Event.find();
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching events' });
+  }
+});
+app.get('/api/odapplieslist', async (req, res) => { 
+  try {
+    const records = await Form2.find({});
+    console.log(records); 
+    res.status(200).json(records);
+  } catch (error) {
+    console.error('Error fetching records:', error);
+    res.status(500).json({ error: 'Failed to fetch records' });
+  }
+});
+
+
+app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part 
+  try {
+    const ev = await NewOdCollection.find();
+    res.json(ev);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching events' });
+  }
+});
+ // Route to delete an OD record when all fields match
+app.delete('/api/delete-od-record', async (req, res) => {
+  const { rollNo, name, periods, eventName, collegeName } = req.body;
+
+  try {
+    // Find and delete the record that matches all the provided fields
+    const deletedRecord = await Form2.findOneAndDelete({
+      rollNo: rollNo,
+      name: name,
+      periods: periods,
+      eventName: eventName,
+      collegeName: collegeName
+    });
+
+    if (!deletedRecord) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    // Successfully deleted the record
+    res.status(200).json({ message: 'Record deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting record:', error);
+    res.status(500).json({ error: 'Failed to delete record' });
+  }
+});
+app.post('/api/new-od-collection', async (req, res) => {
+  const { rollNo, status } = req.body;
+
+  try {
+    // Fetch the existing record from Form2 (original collection)
+    const existingRecord = await Form2.findOne({ rollNo });
+
+    if (!existingRecord) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+
+    // Create a new record in the NewOdCollection with the status field
+    const newRecord = new NewOdCollection({
+      rollNo: existingRecord.rollNo,
+      name: existingRecord.name,
+      periods: existingRecord.periods,
+      eventName: existingRecord.eventName,
+      collegeName: existingRecord.collegeName,
+      status: status  // Set the status to Accepted or Declined
+    });
+
+    // Save the new record in the new collection
+    await newRecord.save();
+
+    // Delete the original record from Form2 after saving to the new collection
+    await Form2.findOneAndDelete({ rollNo });
+
+    // Return success response
+    res.status(201).json({ message: 'Record saved to new collection and deleted from original collection', newRecord });
+  } catch (error) {
+    console.error('Error updating OD status:', error);
+    res.status(500).json({ message: 'Failed to update and delete record' });
+  }
+});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
-
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

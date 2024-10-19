@@ -1,74 +1,143 @@
+import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 
 const Events = () => {
+  const [events, setEvents] = useState({
+    insideCollege: [],
+    outsideCollege: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/eventsposted');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        const insideCollegeEvents = data.filter(event => event.eventType === 'insideCollege');
+        const outsideCollegeEvents = data.filter(event => event.eventType === 'outsideCollege');
+
+        setEvents({
+          insideCollege: insideCollegeEvents,
+          outsideCollege: outsideCollegeEvents,
+        });
+      } catch (error) {
+        setError('Error fetching events: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedEvent(null);
+  };
+
+  // Function to determine background color based on the event date
+  const getEventClassName = (eventDate) => {
+    const today = new Date();
+    const eventDay = new Date(eventDate);
+
+    if (eventDay < today) {
+      return 'bg-red-300'; // Past events - red
+    } else if (eventDay.toDateString() === today.toDateString() || eventDay.toDateString() === new Date(today.setDate(today.getDate() + 1)).toDateString()) {
+      return 'bg-yellow-300'; // Today or tomorrow - yellow
+    } else {
+      return 'bg-green-300'; // Future events - green
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Inside College</h2>
+      <div className="flex flex-col items-center justify-center py-4 space-y-8 max-w-7xl mx-auto px-4">
 
-        {/* Inter Department Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold">Inter Department</h3>
-            <a href="#" className="text-sm text-blue-500 font-semibold hover:underline">See More</a>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Cards */}
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
+        {/* Loading and Error State */}
+        {loading ? (
+          <p>Loading events...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <>
+            {/* Inside College Events */}
+            <div className="bg-gray-200 shadow-lg rounded-lg p-8 w-full max-w-4xl">
+              <h2 className="text-xl font-bold mb-4">Inside College Events</h2>
+              <div className="flex flex-wrap justify-center gap-4 mb-4">
+                {events.insideCollege.length > 0 ? (
+                  events.insideCollege.map(event => (
+                    <div 
+                      key={event._id} 
+                      className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <h4 className="font-bold">{event.eventName}</h4>
+                      <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No Inside College Events available at the moment.</p>
+                )}
+              </div>
             </div>
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-          </div>
-        </div>
 
-        {/* Intra Department Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold">Intra Department</h3>
-            <a href="#" className="text-sm text-blue-500 font-semibold hover:underline">See More</a>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Cards */}
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
+            {/* Outside College Events */}
+            <div className="bg-gray-200 shadow-lg rounded-lg p-8 w-full max-w-4xl mt-4">
+              <h2 className="text-xl font-bold mb-4">Outside College Events</h2>
+              <div className="flex flex-wrap justify-center gap-4 mb-4">
+                {events.outsideCollege.length > 0 ? (
+                  events.outsideCollege.map(event => (
+                    <div 
+                      key={event._id} 
+                      className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
+                      onClick={() => handleEventClick(event)}
+                    >
+                      <h4 className="font-bold">{event.eventName}</h4>
+                      <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No Outside College Events available at the moment.</p>
+                )}
+              </div>
             </div>
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
 
-        {/* Outside College */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Outside College</h2>
-
-        {/* Outside College Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold">Outside College</h3>
-            <a href="#" className="text-sm text-blue-500 font-semibold hover:underline">See More</a>
+        {/* Modal for Event Details */}
+        {showModal && selectedEvent && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative">
+              <h2 className="text-2xl font-bold mb-4">{selectedEvent.eventName}</h2>
+              <p><strong>Description:</strong> {selectedEvent.description}</p>
+              <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
+              <p><strong>Location:</strong> {selectedEvent.location}</p>
+              <p><strong>Registration Link:</strong> <a href={selectedEvent.registrationLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">{selectedEvent.registrationLink}</a></p>
+              <p><strong>Image:</strong> {selectedEvent.image && (
+                <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2" />
+              )}
+              </p>
+              <button 
+                className="absolute top-2 right-2 text-red-500"
+                onClick={closeModal}
+              >
+                &times; {/* Close button */}
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Cards */}
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-            <div className="bg-gray-100 h-40 flex justify-center items-center rounded-lg shadow">
-              <button className="bg-white px-4 py-2 font-semibold rounded hover:bg-gray-200 transition">Register</button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

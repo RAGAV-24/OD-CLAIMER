@@ -34,14 +34,14 @@ const SigninForm = () => {
   
       // If successful, navigate to the appropriate dashboard
       if (response.status === 200) {
-        const { userType, student, teacher } = response.data.data; // Get userType, student, and teacher data from response
+        const { userType, student, teacher ,eventCoordinator} = response.data.data; // Get userType, student, and teacher data from response
         
         if (userType === 'student') {
           navigate('/student/dashboard', { state: { student } }); // Pass student data to the dashboard
         } else if (userType === 'teacher') {
           navigate('/teacher/dashboard', { state: { teacher } }); // Pass teacher data to the dashboard
         } else if (userType === 'eventCoordinator') {
-          navigate('/event-coordinator/dashboard');
+          navigate('eventCoordinator/dashboard',{state:{eventCoordinator}});
         }
       }
     } catch (err) {

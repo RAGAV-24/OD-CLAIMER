@@ -1,57 +1,144 @@
-import Navbar from './Navbar';     
+import { useEffect, useState } from 'react';
+import Navbar from './Navbar';
+import { useNavigate } from 'react-router-dom';
+
 const Response = () => {
+  const [responses, setResponses] = useState([]); // State to hold the fetched data
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchResponses = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/od-responses'); // Adjust the endpoint as needed
+        const data = await response.json();
+        
+        // Initialize uploadCount and uploadDate for each response
+        const initializedData = data.map(item => ({
+          ...item,
+          uploadCount: item.uploadCount || 0, // Ensure uploadCount exists
+          uploadDate: item.uploadDate || null, // Ensure uploadDate exists
+        }));
+        
+        setResponses(initializedData); // Assuming your API returns an array of responses
+      } catch (error) {
+        console.error('Error fetching responses:', error);
+      }
+    };
+
+    fetchResponses();
+  }, []);
+
+  const handleFileUpload = (index) => {
+    setResponses((prevResponses) => {
+      const updatedResponses = [...prevResponses];
+      const response = updatedResponses[index];
+
+      // Increment the upload count and check for removal
+      if (response.uploadCount < 3) {
+        response.uploadCount += 1;
+
+        // Set the upload date on the first upload
+        if (response.uploadCount === 1) {
+          response.uploadDate = new Date().toISOString(); // Store the current date as upload date
+        }
+      }
+
+      // Check for removal conditions
+      const currentDate = new Date();
+      const uploadDate = response.uploadDate ? new Date(response.uploadDate) : null;
+      const daysSinceUpload = uploadDate ? Math.floor((currentDate - uploadDate) / (1000 * 60 * 60 * 24)) : 0;
+
+      // Remove the row if upload count is 3 or 3 days have passed
+      if (response.uploadCount >= 3 || (response.uploadDate && daysSinceUpload >= 3)) {
+        updatedResponses.splice(index, 1); // Remove the row if conditions are met
+      }
+
+      // Store updated responses in local storage
+      localStorage.setItem('responses', JSON.stringify(updatedResponses));
+
+      return updatedResponses;
+    });
+
+    // Navigate to the response page
+    navigate('/student/od-response');
+  };
+
+  // Load responses from local storage on component mount
+  useEffect(() => {
+    const storedResponses = localStorage.getItem('responses');
+    if (storedResponses) {
+      setResponses(JSON.parse(storedResponses));
+    }
+  }, []);
+
   return (
     <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
       <div className="flex items-center justify-center">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl">
+        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl"> {/* Changed max width */}
           {/* Apply OD Header */}
           <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">Response</h1>
           <hr className="border-gray-600 w-16 mb-8 mx-auto" />
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border-collapse border border-gray-300">
+            <table className="min-w-full bg-white">
               {/* Table Header */}
               <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Register Number</th>
-                  <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Name</th>
-                  <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Event Name</th>
-                  <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">College Name</th>
-                  <th className="py-2 px-4 border-b-2 border-gray-300 font-semibold text-gray-700">Status</th>
+                <tr className="bg-gray-100">
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Register Number</th>
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Name</th>
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Event Name</th>
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">College Name</th>
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Status</th>
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Upload</th> {/* Upload Column */}
                 </tr>
               </thead>
 
               <tbody>
-                <tr className="bg-gray-50">
-                  <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
-                  <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Pending</td>
-                </tr>
+                {responses.length > 0 ? (
+                  responses.map((response, index) => {
+                    const currentDate = new Date();
+                    const uploadDate = response.uploadDate ? new Date(response.uploadDate) : null;
+                    const daysSinceUpload = uploadDate ? Math.floor((currentDate - uploadDate) / (1000 * 60 * 60 * 24)) : 0;
+                    const remainingDays = uploadDate ? Math.max(0, 3 - daysSinceUpload) : 3;
 
-                <tr>
-                  <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
-                  <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Pending</td>
-                </tr>
-
-                <tr className="bg-gray-50">
-                  <td className="py-3 px-4 border-b border-gray-300">22ADR064</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Arsath</td>
-                  <td className="py-3 px-4 border-b border-gray-300">NEWELL</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Kongu Engineering College</td>
-                  <td className="py-3 px-4 border-b border-gray-300">Pending</td>
-                </tr>
+                    return (
+                      <tr key={index} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-gray-100' : ''}`}>
+                        <td className="py-3 px-4">{response.rollNo}</td>
+                        <td className="py-3 px-4">{response.name}</td>
+                        <td className="py-3 px-4">{response.eventName}</td>
+                        <td className="py-3 px-4">{response.collegeName}</td>
+                        <td className="py-3 px-4">{response.status}</td>
+                        <td className="py-3 px-4">
+                          {response.status === 'Accepted' && ( // Conditional rendering for upload button
+                            <div>
+                              <div className="text-sm text-gray-600 mb-1">
+                                Days Remaining: {remainingDays} | Attempts: {response.uploadCount} / 3
+                              </div>
+                              <button
+                                className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition"
+                                onClick={() => handleFileUpload(index)} // Pass the index to handle upload
+                                disabled={response.uploadCount >= 3} // Disable button if limit reached
+                              >
+                                Upload
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="py-3 px-4 text-center">No responses found.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Response;
