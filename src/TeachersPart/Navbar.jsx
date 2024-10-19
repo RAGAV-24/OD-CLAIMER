@@ -9,7 +9,7 @@ const Navbar = () => {
       <nav className="bg-purple-300 p-4 rounded relative">
         <div className="min-h-screen absolute inset-0 -z-10 h-full w-full bg-white bg-opacity-40 backdrop-filter backdrop-blur-lg"></div>
         <div className="container flex justify-between items-center">
-          <div className="text-2xl text-left bg-gradient-to-r from-pink-400 via-slate-500 to-purple-500 bg-clip-text tracking-tight text-transparent">
+          <div className="text-2xl text-left bg-gradient-to-r from-pink-400 via-slate-500 text-4xl to-purple-500 bg-clip-text tracking-tight text-transparent">
             CLASS ADVISOR SESSION
           </div>
 
