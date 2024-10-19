@@ -19,8 +19,7 @@ const Dashboard = () => {
         // Check if response contains an array of students or a single student object
         const student = response.data.students ? response.data.students : response.data;
         console.log(response);
-        const student = response.data.students ? response.data.students[0] : response.data;
-
+        
         setStudentData(student);
         console.log(student);
         localStorage.setItem('studentData', JSON.stringify(student)); // Store the specific student data in local storage
