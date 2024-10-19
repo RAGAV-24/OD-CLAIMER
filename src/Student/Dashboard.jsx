@@ -14,14 +14,12 @@ const Dashboard = () => {
     const fetchStudentData = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/students');
-<<<<<<< HEAD
+
         
         // Check if response contains an array of students or a single student object
         const student = response.data.students ? response.data.students : response.data;
-=======
         console.log(response);
         const student = response.data.students ? response.data.students[0] : response.data;
->>>>>>> origin/rax
 
         setStudentData(student);
         console.log(student);
