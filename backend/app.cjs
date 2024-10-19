@@ -116,7 +116,7 @@ const formSchema = new mongoose.Schema({
   attendancePhoto: { type: String, required: true },// Attendance sheet photo URL or path
   submittedAt: { type: Date, default: Date.now }   // Submission timestamp
 });
-const Form = mongoose.model('StudentForm', formSchema); // Ensure you keep this line
+const Form = mongoose.model('StudentForm', formSchema); // Ensure yo keep this line
 const formSchemas = new mongoose.Schema({
   rollNo: String,
   name: String,
@@ -137,7 +137,12 @@ const newOdSchema = new mongoose.Schema({
 });
 
 const NewOdCollection = mongoose.model('NewOdCollection', newOdSchema);
+const bankSchema = new mongoose.Schema({
+  rollNo: { type: String, required: true, unique: true },
+  periods: { type: Number, required: true }
+});
 
+const Bank = mongoose.model('Bank', bankSchema);
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
   try {
@@ -384,7 +389,47 @@ app.post('/api/new-od-collection', async (req, res) => {
     res.status(500).json({ message: 'Failed to update and delete record' });
   }
 });
+app.get('/api/studentresponsetoteach', async (req, res) => {
+  try {
+      const forms = await Form.find({});
+      res.json(forms);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching student forms' });
+  }
+});
+app.post('/api/addToBank', async (req, res) => {
+  const { rollNo, periods } = req.body;
 
+  try {
+      // Find existing document
+      const existingRecord = await Bank.findOne({ rollNo });
+
+      if (existingRecord) {
+          // If exists, update the periods
+          existingRecord.periods += periods;
+          await existingRecord.save();
+          return res.status(200).json({ message: 'Periods updated successfully!' });
+      } else {
+          // If not exists, create a new document
+          const newRecord = new Bank({ rollNo, periods });
+          await newRecord.save();
+          return res.status(201).json({ message: 'New record created successfully!' });
+      }
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error adding to bank' });
+  }
+});
+
+app.get('/api/bank', async (req, res) => {
+  try {
+      const records = await Bank.find(); // Fetch all records from the bank collection
+      return res.status(200).json(records);
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error fetching bank records' });
+  }
+});
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
