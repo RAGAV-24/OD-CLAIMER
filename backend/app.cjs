@@ -430,6 +430,37 @@ app.get('/api/bank', async (req, res) => {
       return res.status(500).json({ message: 'Error fetching bank records' });
   }
 });
+app.delete('/api/deleteStudent', async (req, res) => {
+  const { name, rollNo, periods, collegeName, eventName, geotagPhoto, attendancePhoto } = req.body;
+
+  try {
+      // Build a query object with the fields to match
+      const query = {
+          name,
+          rollNo,
+          periods,
+          collegeName,
+          eventName,
+          geotagPhoto,
+          attendancePhoto,
+      };
+
+      // Find and delete the student response that matches all fields
+      const deletedResponse = await Form.findOneAndDelete(query);
+
+      // Check if the response was found and deleted
+      if (!deletedResponse) {
+          return res.status(404).json({ message: 'Student response not found.' }); // Return 404 if not found
+      }
+
+      // Return success response
+      res.status(200).json({ message: 'Student response deleted successfully.' });
+  } catch (error) {
+      console.error('Error deleting student response:', error);
+      res.status(500).json({ message: 'Server error. Please try again.' }); // Return 500 for server errors
+  }
+});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
