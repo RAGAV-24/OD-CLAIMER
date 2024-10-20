@@ -460,6 +460,24 @@ app.delete('/api/deleteStudent', async (req, res) => {
       res.status(500).json({ message: 'Server error. Please try again.' }); // Return 500 for server errors
   }
 });
+app.get('/api/newodcollections/:rollNo', async (req, res) => {
+  const { rollNo } = req.params;
+
+  try {
+      // Fetch records matching the roll number from newOdCollection
+      const records = await NewOdCollection.find({ rollNo }); // Adjust the field name if necessary
+
+      // Check if records were found
+      if (!records.length) {
+          return res.status(404).json({ message: 'No records found for this roll number.' });
+      }
+
+      res.status(200).json(records);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error while fetching records.' });
+  }
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

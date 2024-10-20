@@ -6,7 +6,7 @@ import Odclimed from './Odclimed';
 
 const Od = () => {
   // State to track which component to display
-  const [activeComponent, setActiveComponent] = useState(''); // initially empty
+  const [activeComponent, setActiveComponent] = useState('OdApplied'); // initially empty
 
   // Function to handle which component to show
   const handleClick = (componentName) => {
