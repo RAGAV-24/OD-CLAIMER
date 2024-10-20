@@ -17,6 +17,7 @@ import Signin from './Signin/Signin';
 import OdApplied from './TeachersPart/OdApplied'   ;
 import OdResponse from './TeachersPart/Odresponse';
 import Odclimed from './TeachersPart/Odclimed';
+import TeacherEvents from './TeachersPart/TeacherEvents';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/teacher/addup" element={<Addup />} />
         <Route path="/teacher/stats" element={<Stats />} />
         <Route path="/teacher/od" element={<Od />} />
+        <Route path="/teacher/events" element={<TeacherEvents />} />
         <Route path="/teacher/profile" element={<Profile />} />
         <Route path="/eventCoordinator/dashboard" element={<CoordinatorDashBoard />} />
         <Route path="/eventCoordinator/eventform" element={<EventAddingForm />} />
