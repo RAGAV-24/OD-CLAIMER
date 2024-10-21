@@ -38,7 +38,7 @@ const Profile = () => {
   }, [teacherData]);
 
   return (
-    <div className="rounded">
+    <div className="rounded p-4">
       <Navbar />
       <div className="py-4 min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
         {loading && <p>Loading...</p>}

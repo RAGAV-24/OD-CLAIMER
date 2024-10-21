@@ -61,7 +61,7 @@ const Events = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
+    <div className="py-4 min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
       <div className="flex flex-col items-center justify-center py-4 space-y-8 max-w-7xl mx-auto px-4">
 

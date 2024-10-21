@@ -73,7 +73,7 @@ const OdApplied = () => {
   }
 
   return (
-    <div className="overflow-x-auto p-4">
+    <div className="rounded p-4">
       <table className="min-w-full bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden">
         <thead className="bg-gray-200">
           <tr className="text-left">

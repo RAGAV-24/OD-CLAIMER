@@ -14,7 +14,7 @@ const Od = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="rounded p-4">
       <Navbar />
       <div className="container mx-auto px-4 py-6">
         <nav className=  "text-black rounded-lg p-4 font-bold">

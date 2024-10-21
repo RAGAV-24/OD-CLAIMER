@@ -60,7 +60,7 @@ const MonthlyStats = () => {
   };
 
   return (
-    <div>
+    <div className='py-4 min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]'>
       <Navbar />
        {/* Monthly OD Stats Section */}
        <div className="mt-12 text-center">
