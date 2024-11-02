@@ -37,7 +37,7 @@ const SigninForm = () => {
         const { userType, student, teacher ,eventCoordinator} = response.data.data; // Get userType, student, and teacher data from response
         
         if (userType === 'student') {
-          navigate('/student/dashboard', { state: { student } }); // Pass student data to the dashboard
+          navigate('/student/events', { state: { student } }); // Pass student data to the dashboard
         } else if (userType === 'teacher') {
           navigate('/teacher/dashboard', { state: { teacher } }); // Pass teacher data to the dashboard
         } else if (userType === 'eventCoordinator') {

@@ -65,7 +65,6 @@ app.post('/upload-student-data', upload.single('file'), (req, res) => {
     })
     .on('end', async () => {
       try {
-        // Insert each row into the Student collection
         for (const studentData of results) {
           const student = new Student({
             rollNumber: studentData.ROLL_NUMBER,

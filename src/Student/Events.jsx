@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Navbar from './Navbar';
 
 const Events = () => {
@@ -10,6 +11,8 @@ const Events = () => {
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -46,6 +49,19 @@ const Events = () => {
     setSelectedEvent(null);
   };
 
+  const navigateToApplyOd = () => {
+    navigate('/student/apply-od'); // Navigate to the apply OD page
+  };
+
+  // Function to filter events based on the search query
+  const filteredInsideCollegeEvents = events.insideCollege.filter(event =>
+    event.eventName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredOutsideCollegeEvents = events.outsideCollege.filter(event =>
+    event.eventName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Function to determine background color based on the event date
   const getEventClassName = (eventDate) => {
     const today = new Date();
@@ -65,6 +81,17 @@ const Events = () => {
       <Navbar />
       <div className="flex flex-col items-center justify-center py-4 space-y-8 max-w-7xl mx-auto px-4">
 
+        {/* Search Bar */}
+        <div className="w-full max-w-md mb-4">
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 w-full"
+          />
+        </div>
+
         {/* Loading and Error State */}
         {loading ? (
           <p>Loading events...</p>
@@ -76,8 +103,8 @@ const Events = () => {
             <div className="bg-gray-200 shadow-lg rounded-lg p-8 w-full max-w-4xl">
               <h2 className="text-xl font-bold mb-4">Inside College Events</h2>
               <div className="flex flex-wrap justify-center gap-4 mb-4">
-                {events.insideCollege.length > 0 ? (
-                  events.insideCollege.map(event => (
+                {filteredInsideCollegeEvents.length > 0 ? (
+                  filteredInsideCollegeEvents.map(event => (
                     <div 
                       key={event._id} 
                       className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
@@ -97,8 +124,8 @@ const Events = () => {
             <div className="bg-gray-200 shadow-lg rounded-lg p-8 w-full max-w-4xl mt-4">
               <h2 className="text-xl font-bold mb-4">Outside College Events</h2>
               <div className="flex flex-wrap justify-center gap-4 mb-4">
-                {events.outsideCollege.length > 0 ? (
-                  events.outsideCollege.map(event => (
+                {filteredOutsideCollegeEvents.length > 0 ? (
+                  filteredOutsideCollegeEvents.map(event => (
                     <div 
                       key={event._id} 
                       className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
@@ -125,10 +152,18 @@ const Events = () => {
               <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
               <p><strong>Location:</strong> {selectedEvent.location}</p>
               <p><strong>Registration Link:</strong> <a href={selectedEvent.registrationLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">{selectedEvent.registrationLink}</a></p>
-              <p><strong>Image:</strong> {selectedEvent.image && (
-                <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2" />
+              {selectedEvent.image && (
+                <p>
+                  <strong>Image:</strong>
+                  <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2" />
+                </p>
               )}
-              </p>
+              <button 
+                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+                onClick={navigateToApplyOd} // Navigate to the apply OD page
+              >
+                Apply for OD
+              </button>
               <button 
                 className="absolute top-2 right-2 text-red-500"
                 onClick={closeModal}

@@ -40,11 +40,7 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <ul className="hidden md:flex space-x-8 text-black font-semibold">
-            <li>
-              <Link to="/student/dashboard" className="hover:bg-violet-400 p-2 rounded">
-                DashBoard
-              </Link>
-            </li>
+            
             <li>
               <Link to="/student/events" className="hover:bg-violet-400 p-2 rounded">
                 Events
@@ -63,6 +59,11 @@ const Navbar = () => {
             <li>
               <Link to="/student/response" className="hover:bg-violet-400 p-2 rounded">
                 Response
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/dashboard" className="hover:bg-violet-400 p-2 rounded">
+                Profile
               </Link>
             </li>
           </ul>
