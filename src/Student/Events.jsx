@@ -145,30 +145,30 @@ const Events = () => {
 
         {/* Modal for Event Details */}
         {showModal && selectedEvent && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 w-11/12 max-w-lg relative">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 ">
+            <div className="bg-purple-200 rounded-lg p-6 w-11/12 max-w-lg relative transition-transform transform scale-100 border-8">
+              <button 
+                className="absolute top-2 right-2 text-purple-500 hover:text-red-700 focus:outline-none text-5xl p-2"
+                onClick={closeModal}
+              >
+                &times; 
+              </button>
               <h2 className="text-2xl font-bold mb-4">{selectedEvent.eventName}</h2>
               <p><strong>Description:</strong> {selectedEvent.description}</p>
               <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
               <p><strong>Location:</strong> {selectedEvent.location}</p>
               <p><strong>Registration Link:</strong> <a href={selectedEvent.registrationLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">{selectedEvent.registrationLink}</a></p>
               {selectedEvent.image && (
-                <p>
+                <div className="mb-4">
                   <strong>Image:</strong>
-                  <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2" />
-                </p>
+                  <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2 rounded" />
+                </div>
               )}
               <button 
-                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+                className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600 transition duration-200 mt-4"
                 onClick={navigateToApplyOd} // Navigate to the apply OD page
               >
                 Apply for OD
-              </button>
-              <button 
-                className="absolute top-2 right-2 text-red-500"
-                onClick={closeModal}
-              >
-                &times; {/* Close button */}
               </button>
             </div>
           </div>
