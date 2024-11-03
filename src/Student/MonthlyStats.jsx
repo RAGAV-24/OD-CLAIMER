@@ -1,10 +1,9 @@
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2'; // Import Bar component
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -13,17 +12,19 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend); // Register BarElement
 
 const MonthlyStats = () => {
   const [dailyStats, setDailyStats] = useState({ accepted: {}, rejected: {} });
+  const [selectedDate, setSelectedDate] = useState(null); // State for selected date
+  const [selectedPeriods, setSelectedPeriods] = useState({ accepted: 0, rejected: 0 }); // State for periods
   const month = new Date().getMonth(); // Current month (0-11)
   const year = new Date().getFullYear(); // Current year
 
   useEffect(() => {
     const fetchData = async () => {
       const rollNumber = JSON.parse(localStorage.getItem('studentData')).rollNumber; 
-      console.log(rollNumber);// Retrieve roll number from localStorage
+      console.log(rollNumber); // Retrieve roll number from localStorage
       try {
         const response = await axios.get('http://localhost:5000/api/od-responses');
         console.log(response);
@@ -66,18 +67,12 @@ const MonthlyStats = () => {
       {
         label: 'Accepted',
         data: Array.from({ length: 31 }, (_, i) => dailyStats.accepted[i + 1] || 0),
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-        tension: 0.4,
+        backgroundColor: 'rgba(75, 192, 192, 0.5)', // Change for bar graph
       },
       {
         label: 'Rejected',
         data: Array.from({ length: 31 }, (_, i) => dailyStats.rejected[i + 1] || 0),
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        fill: true,
-        tension: 0.4,
+        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Change for bar graph
       },
     ],
   };
@@ -92,6 +87,28 @@ const MonthlyStats = () => {
         display: true,
         text: 'Monthly OD Stats',
       },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem) => {
+            const day = tooltipItem.label; // Get the day from tooltip item
+            const dateString = `${day}/${month + 1}/${year}`; // Format date string
+            return dateString; // Return formatted date
+          },
+        },
+      },
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const index = elements[0].index; // Get index of clicked bar
+        const day = index + 1; // Days are 1-based (1-31)
+        setSelectedDate(`${day}/${month + 1}/${year}`); // Set the selected date in state
+        
+        // Get the accepted and rejected periods for the selected date
+        const acceptedPeriods = dailyStats.accepted[day] || 0;
+        const rejectedPeriods = dailyStats.rejected[day] || 0;
+        
+        setSelectedPeriods({ accepted: acceptedPeriods, rejected: rejectedPeriods }); // Update periods state
+      }
     },
   };
 
@@ -102,7 +119,18 @@ const MonthlyStats = () => {
         <h2 className="text-2xl font-bold text-gray-900">Monthly OD Stats</h2>
         <div className="flex justify-center mt-6">
           <div className="w-full max-w-4xl">
-            <Line data={chartData} options={options} />
+            <Bar data={chartData} options={options} /> {/* Change Line to Bar */}
+            {selectedDate && (
+              <div className="mt-4 text-lg text-gray-700">
+                Selected Date: {selectedDate} {/* Display selected date */}
+                <div>
+                  Accepted Periods: {selectedPeriods.accepted} {/* Display accepted periods */}
+                </div>
+                <div>
+                  Rejected Periods: {selectedPeriods.rejected} {/* Display rejected periods */}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
