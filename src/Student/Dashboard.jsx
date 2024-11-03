@@ -1,11 +1,9 @@
 import NavBar from './Navbar';
-import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const Dashboard = () => {
-  const location = useLocation();
-  const [studentData] = useState(location.state?.student || JSON.parse(localStorage.getItem('studentData')));
-
+  const [studentData] = useState( JSON.parse(localStorage.getItem('studentData')));
+  console.log(studentData);
   
   useEffect(() => {
     if (studentData) {

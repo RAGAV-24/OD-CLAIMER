@@ -32,16 +32,20 @@ const SigninForm = () => {
         userType, // Include the userType in the request
       });
   
-      // If successful, navigate to the appropriate dashboard
       if (response.status === 200) {
-        const { userType, student, teacher ,eventCoordinator} = response.data.data; // Get userType, student, and teacher data from response
-        
+        const { userType, student, teacherData ,eventCoordinator} = response.data.data; // Get userType, student, and teacher data from response
+        console.log(teacherData);
+        console.log(student);
         if (userType === 'student') {
-          navigate('/student/events', { state: { student } });
+          localStorage.setItem('studentData', JSON.stringify(student));
+          navigate('/student/events');
         } else if (userType === 'teacher') {
-          navigate('/teacher/dashboard', { state: { teacher } }); 
+          localStorage.setItem('teacherData', JSON.stringify(teacherData));
+          navigate('/teacher/events'); 
         } else if (userType === 'eventCoordinator') {
-          navigate('eventCoordinator/dashboard',{state:{eventCoordinator}});
+          
+          localStorage.setItem('eventCoordinatorData', JSON.stringify(eventCoordinator));
+          navigate('eventCoordinator/dashboard');
         }
       }
     } catch (err) {

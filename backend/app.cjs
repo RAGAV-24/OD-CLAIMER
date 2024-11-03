@@ -198,15 +198,7 @@ app.post('/signin', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-app.get('/api/teacher', async (req, res) => {
-  try {
-    const teachers = await TeacherData.find(); 
-    res.status(200).json({ message: 'Teachers fetched successfully', teachers });
-  } catch (err) {
-    console.error("Error fetching teachers:", err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
+
 
 app.post('/api/events', upload1.single('image'), async (req, res) => {
   try {

@@ -109,8 +109,6 @@ const Odresponse = () => {
                 required
               />
             </div>
-
-            {/* College Name Input */}
             <div className="flex items-center">
               <label className="w-1/3 font-bold text-gray-700 text-lg">College Name</label>
               <input

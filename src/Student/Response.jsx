@@ -119,7 +119,7 @@ const Response = () => {
                                 Days Remaining: {remainingDays} | Attempts: {response.uploadCount} / 3
                               </div>
                               <button
-                                className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-400 transition"
+                                className="bg-purple-500 text-white px-4 py-1 rounded hover:bg-purple-400 transition"
                                 onClick={() => handleFileUpload(index)} // Pass the index to handle upload
                                 disabled={response.uploadCount >= 3} // Disable button if limit reached
                               >
