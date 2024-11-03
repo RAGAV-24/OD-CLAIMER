@@ -42,7 +42,7 @@ To get started with the project, follow these steps:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/RAGAV-24/SIH-2K24.git
+   https://github.com/RAGAV-24/OD-CLAIMER.git
 Navigate to the project directory:
 
 
