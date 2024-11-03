@@ -37,7 +37,7 @@ const SigninForm = () => {
         const { userType, student, teacher ,eventCoordinator} = response.data.data; // Get userType, student, and teacher data from response
         
         if (userType === 'student') {
-          navigate('/student/dashboard', { state: { student } });
+          navigate('/student/events', { state: { student } });
         } else if (userType === 'teacher') {
           navigate('/teacher/dashboard', { state: { teacher } }); 
         } else if (userType === 'eventCoordinator') {
@@ -103,6 +103,9 @@ const SigninForm = () => {
           Sign In
         </button>
       </form>
+      <div >
+        <a href='/forgot-password' className="text-purple-500">Forgot Password?</a>
+      </div>
     </div>
   );
 };

@@ -18,6 +18,9 @@ import OdApplied from './TeachersPart/OdApplied'   ;
 import OdResponse from './TeachersPart/Odresponse';
 import Odclimed from './TeachersPart/Odclimed';
 import TeacherEvents from './TeachersPart/TeacherEvents';
+import ForgotPassword from './Signin/OtpRequest';
+import PasswordReset from './Signin/PasswordReset';
+
 
 function App() {
   return (
@@ -43,6 +46,9 @@ function App() {
         <Route path="/teacher/odapply" element={<OdApplied />} />
         <Route path="/teacher/odresponse" element={<OdResponse />} />
         <Route path="/teacher/odclaimed" element={<Odclimed />}/>
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<PasswordReset />} />
+
 
         <Route path="*" element={<h1>Page Not Found</h1>} />
       </Routes>

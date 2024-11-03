@@ -7,7 +7,7 @@ const app = express();
 const path = require('path');
 const multer = require('multer');
 const PORT = process.env.PORT || 5000;
-const router = express.Router();
+const nodemailer = require('nodemailer');
 app.use(cors({
   origin: 'http://localhost:5173',
 }));
@@ -144,6 +144,15 @@ const bankSchema = new mongoose.Schema({
 });
 
 const Bank = mongoose.model('Bank', bankSchema);
+
+const otpSchema = new mongoose.Schema({
+  email: String,
+  otp: String,
+  createdAt: { type: Date, default: Date.now, expires: '10m' }  
+});
+
+const Otp = mongoose.model('Otp', otpSchema);
+
 app.post('/signin', async (req, res) => {
   const { email, password, userType } = req.body;
   try {
@@ -450,6 +459,91 @@ app.get('/api/newodcollections/:rollNo', async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error while fetching records.' });
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'getharsath@gmail.com',
+    pass: 'gscp mlta ljbh gdxk', 
+  },
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("Transporter verification error:", error);
+  } else {
+    console.log("Server is ready to send emails.");
+  }
+});
+
+
+
+async function sendOtpEmail(email, otp) {
+  const mailOptions = {
+    from: 'getarsath@gmail.com',
+    to: email,
+    subject: 'Password Reset OTP',
+    text: 'Your OTP for password reset is:${otp}'
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending OTP email:", error);
+    throw new Error("Failed to send OTP email");
+  }
+}
+
+app.post('/forgot-password', async (req, res) => {
+  const { email, userType } = req.body;
+  const normalizedEmail = email.toLowerCase();
+  const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+  try {
+ 
+    await Otp.create({ email: normalizedEmail, otp });
+    
+
+    await sendOtpEmail(normalizedEmail, otp);
+
+    return res.status(200).json({ message: 'OTP sent to email' });
+  } catch (err) {
+    console.error("Error generating OTP:", err);
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+});
+
+app.post('/reset-password', async (req, res) => {
+  const { email, otp, newPassword, userType } = req.body;
+  const normalizedEmail = email.toLowerCase();
+
+  try {
+    
+    const otpRecord = await Otp.findOne({ email: normalizedEmail, otp });
+    if (!otpRecord) {
+      return res.status(401).json({ message: 'Invalid or expired OTP' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    if (userType === 'student') {
+      await User.updateOne({ email: normalizedEmail }, { password: hashedPassword });
+    } else if (userType === 'teacher') {
+      await TeacherPassword.updateOne({ email: normalizedEmail }, { password: hashedPassword });
+    } else if (userType === 'eventCoordinator') {
+      await EventCoordinatorPassword.updateOne({ email: normalizedEmail }, { password: hashedPassword });
+    } else {
+      return res.status(400).json({ message: 'Invalid user type' });
+    }
+
+
+    await Otp.deleteOne({ email: normalizedEmail });
+
+    return res.status(200).json({ message: 'Password reset successful' });
+  } catch (err) {
+    console.error("Error resetting password:", err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 });
 app.use('/eventuploads', express.static(path.join(__dirname, 'eventuploads')));
