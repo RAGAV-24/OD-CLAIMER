@@ -132,6 +132,7 @@ const newOdSchema = new mongoose.Schema({
   rollNo: String,
   name: String,
   periods: Number,
+  date : Date,
   eventName: String,
   collegeName: String,
   status: { type: String, enum: ['Accepted', 'Declined', 'Pending'], default: 'Pending' } // Add the status field
@@ -346,6 +347,7 @@ app.post('/api/new-od-collection', async (req, res) => {
       rollNo: existingRecord.rollNo,
       name: existingRecord.name,
       periods: existingRecord.periods,
+      date: existingRecord.date,
       eventName: existingRecord.eventName,
       collegeName: existingRecord.collegeName,
       status: status  // Set the status to Accepted or Declined

@@ -33,6 +33,7 @@ const OdApplied = () => {
         rollNo: record.rollNo,
         name: record.name,
         periods: record.periods,
+        date:record.date,
         eventName: record.eventName,
         collegeName: record.collegeName,
         status: newStatus // Update status based on button clicked (Accepted or Declined)
