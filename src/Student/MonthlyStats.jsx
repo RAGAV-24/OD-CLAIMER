@@ -22,10 +22,13 @@ const MonthlyStats = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const rollNumber = JSON.parse(localStorage.getItem('studentData')).rollNumber; 
+      console.log(rollNumber);// Retrieve roll number from localStorage
       try {
         const response = await axios.get('http://localhost:5000/api/od-responses');
-        console.log(response.data);
-        countPeriods(response.data);
+        console.log(response);
+        const filteredResponses = response.data.filter(response => response.rollNo === rollNumber); // Filter responses by roll number
+        countPeriods(filteredResponses); // Pass filtered responses to countPeriods
       } catch (error) {
         console.error('Error fetching data:', error);
       }
