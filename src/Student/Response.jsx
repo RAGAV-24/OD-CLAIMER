@@ -11,7 +11,7 @@ const Response = () => {
       try {
         const response = await fetch('http://localhost:5000/api/od-responses'); // Adjust the endpoint as needed
         const data = await response.json();
-        
+
         // Initialize uploadCount and uploadDate for each response
         const initializedData = data.map(item => ({
           ...item,
@@ -71,17 +71,22 @@ const Response = () => {
     }
   }, []);
 
+  // Retrieve the student roll number from local storage
+  const storedStudentData = localStorage.getItem('studentData');
+  const rollNumber = storedStudentData ? JSON.parse(storedStudentData).rollNumber : null;
+
+  // Filter responses based on the retrieved roll number
+  const filteredResponses = responses.filter(response => response.rollNo === rollNumber);
+
   return (
     <div className="py-4 min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]">
       <Navbar />
       <div className="flex items-center justify-center">
-        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl"> {/* Changed max width */}
-          {/* Apply OD Header */}
+        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl">
           <h1 className="text-2xl font-bold mb-4 text-gray-800 text-center">Response</h1>
           <hr className="border-gray-600 w-16 mb-8 mx-auto" />
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white">
-              {/* Table Header */}
               <thead>
                 <tr className="bg-gray-100">
                   <th className="py-2 px-4 text-left font-semibold text-gray-700">Register Number</th>
@@ -89,13 +94,12 @@ const Response = () => {
                   <th className="py-2 px-4 text-left font-semibold text-gray-700">Event Name</th>
                   <th className="py-2 px-4 text-left font-semibold text-gray-700">College Name</th>
                   <th className="py-2 px-4 text-left font-semibold text-gray-700">Status</th>
-                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Upload</th> {/* Upload Column */}
+                  <th className="py-2 px-4 text-left font-semibold text-gray-700">Upload</th>
                 </tr>
               </thead>
-
               <tbody>
-                {responses.length > 0 ? (
-                  responses.map((response, index) => {
+                {filteredResponses.length > 0 ? (
+                  filteredResponses.map((response, index) => {
                     const currentDate = new Date();
                     const uploadDate = response.uploadDate ? new Date(response.uploadDate) : null;
                     const daysSinceUpload = uploadDate ? Math.floor((currentDate - uploadDate) / (1000 * 60 * 60 * 24)) : 0;
@@ -109,7 +113,7 @@ const Response = () => {
                         <td className="py-3 px-4">{response.collegeName}</td>
                         <td className="py-3 px-4">{response.status}</td>
                         <td className="py-3 px-4">
-                          {response.status === 'Accepted' && ( // Conditional rendering for upload button
+                          {response.status === 'Accepted' && (
                             <div>
                               <div className="text-sm text-gray-600 mb-1">
                                 Days Remaining: {remainingDays} | Attempts: {response.uploadCount} / 3
@@ -129,7 +133,7 @@ const Response = () => {
                   })
                 ) : (
                   <tr>
-                    <td colSpan="6" className="py-3 px-4 text-center">No responses found.</td>
+                    <td colSpan="6" className="py-3 px-4 text-center">No matching responses found.</td>
                   </tr>
                 )}
               </tbody>

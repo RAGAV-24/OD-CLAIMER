@@ -6,7 +6,7 @@ const Dashboard = () => {
   const location = useLocation();
   const [studentData] = useState(location.state?.student || JSON.parse(localStorage.getItem('studentData')));
 
-  // Save student data in local storage if it's available
+  
   useEffect(() => {
     if (studentData) {
       localStorage.setItem('studentData', JSON.stringify(studentData));
