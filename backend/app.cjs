@@ -26,13 +26,14 @@ const upload = multer({ storage: storageUploads });
 
 const storageEventUploads = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'eventuploads/'); 
+    cb(null, 'eventuploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); 
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 const upload1 = multer({ storage: storageEventUploads });
+
 const eventSchema = new mongoose.Schema({
 rollNumber: String,
 name: String,
@@ -188,32 +189,6 @@ app.post('/signin', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 });
-app.post('/signup', async (req, res) => {
-  const { email, password, userType } = req.body;
-  try {
-    const normalizedEmail = email.toLowerCase();
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      email: normalizedEmail,
-      password: hashedPassword,
-      userType,
-    });
-    await newUser.save();
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (err) {
-    console.error("Sign-up error:", err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
-app.get('/api/students', async (req, res) => {
-  try {
-    const students = await Student.find();
-    res.status(200).json({ message: 'Students fetched successfully', students });
-  } catch (err) {
-    console.error("Error fetching students:", err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
 app.get('/api/teacher', async (req, res) => {
   try {
     const teachers = await TeacherData.find(); 
@@ -226,7 +201,7 @@ app.get('/api/teacher', async (req, res) => {
 
 app.post('/api/events', upload1.single('image'), async (req, res) => {
   try {
-    const { rollNumber, name, date, duration, eventName,eventType, collegeName, description, registrationLink } = req.body;
+    const { rollNumber, name, date, duration, eventName, eventType, collegeName, description, registrationLink } = req.body;
     const image = req.file?.path || ''; 
 
     const newEvent = new Event({
@@ -241,7 +216,6 @@ app.post('/api/events', upload1.single('image'), async (req, res) => {
       registrationLink,
       image,
     });
-    console.log(newEvent );
     await newEvent.save();
     res.status(201).json({ message: 'Event added successfully!' });
   } catch (error) {
@@ -478,6 +452,7 @@ app.get('/api/newodcollections/:rollNo', async (req, res) => {
       res.status(500).json({ message: 'Server error while fetching records.' });
   }
 });
+app.use('/eventuploads', express.static(path.join(__dirname, 'eventuploads')));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

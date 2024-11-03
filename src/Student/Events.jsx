@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Navbar from './Navbar';
-
 const Events = () => {
   const [events, setEvents] = useState({
     insideCollege: [],
@@ -22,9 +21,22 @@ const Events = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        const insideCollegeEvents = data.filter(event => event.eventType === 'insideCollege');
-        const outsideCollegeEvents = data.filter(event => event.eventType === 'outsideCollege');
-
+  
+        // Get the current month and year
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+  
+        // Filter events for the current month and year
+        const currentMonthEvents = data.filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
+        });
+  
+        // Separate the events based on eventType
+        const insideCollegeEvents = currentMonthEvents.filter(event => event.eventType === 'insideCollege');
+        const outsideCollegeEvents = currentMonthEvents.filter(event => event.eventType === 'outsideCollege');
+  
         setEvents({
           insideCollege: insideCollegeEvents,
           outsideCollege: outsideCollegeEvents,
@@ -35,12 +47,14 @@ const Events = () => {
         setLoading(false);
       }
     };
-
+  
     fetchEvents();
   }, []);
-
+  
   const handleEventClick = (event) => {
     setSelectedEvent(event);
+    console.log(event);
+    console.log(event.image.split('/').pop());
     setShowModal(true);
   };
 
@@ -161,7 +175,7 @@ const Events = () => {
               {selectedEvent.image && (
                 <div className="mb-4">
                   <strong>Image:</strong>
-                  <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2 rounded" />
+                  <img src={''} alt={selectedEvent.eventName} className="w-full h-auto mt-2 rounded" />
                 </div>
               )}
               <button 

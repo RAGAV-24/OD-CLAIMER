@@ -15,8 +15,6 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const navigate = useNavigate();
-
-  // Handle date change and mark it
   const onChange = (newDate) => {
     setDate(newDate);
     const dateString = newDate.toDateString();
