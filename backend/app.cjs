@@ -8,6 +8,7 @@ const path = require('path');
 const multer = require('multer');
 const PORT = process.env.PORT || 5000;
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 app.use(cors({
   origin: 'http://localhost:5173',
 }));
@@ -47,7 +48,7 @@ registrationLink: String,
 image: String,
 });
 const Event = mongoose.model('Event', eventSchema);
-const uri = 'mongodb+srv://ragavr33:rudu007@student.mrg3e.mongodb.net/ODClaimerDB?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
 mongoose.connect(uri)
   .then(() => {
     console.log("MongoDB connected successfully.");

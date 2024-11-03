@@ -36,7 +36,7 @@ const MonthlyStats = () => {
     };
 
     fetchData();
-  }, []);
+  });
 
   const countPeriods = (responses) => {
     const accepted = {};
