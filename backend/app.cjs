@@ -48,7 +48,7 @@ registrationLink: String,
 image: String,
 });
 const Event = mongoose.model('Event', eventSchema);
-const uri = process.env.MONGODB_URI;
+const uri = "mongodb+srv://ragavr33:rudu007@student.mrg3e.mongodb.net/ODClaimerDB?retryWrites=true&w=majority";
 mongoose.connect(uri)
   .then(() => {
     console.log("MongoDB connected successfully.");
