@@ -10,13 +10,16 @@ const PORT = process.env.PORT || 5000;
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'https://od-claimer.vercel.app'], // Allow multiple origins
+  methods: 'GET,POST,PUT,DELETE,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
 }));
 app.use(express.json());
 app.use(bodyParser.json());
 const storageUploads = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); 
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -92,7 +95,7 @@ const TeacherData = mongoose.model('teachersdatas', teacherDataSchema);
 const eventCoordinatorPasswordSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  userType: { type: String, required: true }, 
+  userType: { type: String, required: true },
 });
 const EventCoordinatorPassword = mongoose.model('eventcoordinatorpasswords', eventCoordinatorPasswordSchema);
 const eventCoordinatorSchema = new mongoose.Schema({
@@ -150,7 +153,7 @@ const Bank = mongoose.model('Bank', bankSchema);
 const otpSchema = new mongoose.Schema({
   email: String,
   otp: String,
-  createdAt: { type: Date, default: Date.now, expires: '10m' }  
+  createdAt: { type: Date, default: Date.now, expires: '10m' }
 });
 
 const Otp = mongoose.model('Otp', otpSchema);
@@ -180,10 +183,10 @@ app.post('/signin', async (req, res) => {
         return res.status(401).json({ message: 'Invalid email or password4' });
       }
       const teacherData = await TeacherData.findOne({ email: normalizedEmail });
-     
+
       console.log(teacherData);
       return res.status(200).json({ message: 'Login successful', data: { userType, teacherData } });
-    } 
+    }
     else if (userType === 'eventCoordinator') {
       const eventCoordinatorUser = await EventCoordinatorPassword.findOne({ email: normalizedEmail });
       if (!eventCoordinatorUser) {
@@ -205,7 +208,7 @@ app.post('/signin', async (req, res) => {
 app.post('/api/events', upload1.single('image'), async (req, res) => {
   try {
     const { rollNumber, name, date, duration, eventName, eventType, collegeName, description, registrationLink } = req.body;
-    const image = req.file?.path || ''; 
+    const image = req.file?.path || '';
 
     const newEvent = new Event({
       rollNumber,
@@ -245,13 +248,13 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
     const attendancePhoto = req.files['attendancePhoto'][0].path;
     const newForm = new Form({
       name,
-      rollNo, 
+      rollNo,
       date,
       periods,
       eventName,
       collegeName,
-      geotagPhoto, 
-      attendancePhoto 
+      geotagPhoto,
+      attendancePhoto
     });
     await newForm.save();
     res.status(201).json({ message: 'Form submitted successfully' });
@@ -264,10 +267,10 @@ app.post('/odapply', async (req, res) => {
   try {
     const { rollNumber, name, date, noOfPeriods, eventName, collegeName } = req.body;
     const newForm = new Form2({
-      rollNo: rollNumber,  
+      rollNo: rollNumber,
       name,
       date,
-      periods: noOfPeriods, 
+      periods: noOfPeriods,
       eventName,
       collegeName
     });
@@ -287,10 +290,10 @@ app.get('/api/eventsposted', async (req, res) => {
     res.status(500).json({ error: 'Error fetching events' });
   }
 });
-app.get('/api/odapplieslist', async (req, res) => { 
+app.get('/api/odapplieslist', async (req, res) => {
   try {
     const records = await Form2.find({});
-    console.log(records); 
+    console.log(records);
     res.status(200).json(records);
   } catch (error) {
     console.error('Error fetching records:', error);
@@ -299,7 +302,7 @@ app.get('/api/odapplieslist', async (req, res) => {
 });
 
 
-app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part 
+app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part
   try {
     const ev = await NewOdCollection.find();
     res.json(ev);
@@ -461,7 +464,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'getharsath@gmail.com',
-    pass: 'gscp mlta ljbh gdxk', 
+    pass: 'gscp mlta ljbh gdxk',
   },
 });
 
@@ -494,11 +497,11 @@ async function sendOtpEmail(email, otp) {
 app.post('/forgot-password', async (req, res) => {
   const { email, userType } = req.body;
   const normalizedEmail = email.toLowerCase();
-  const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
   try {
- 
+
     await Otp.create({ email: normalizedEmail, otp });
-    
+
 
     await sendOtpEmail(normalizedEmail, otp);
 
@@ -514,7 +517,7 @@ app.post('/reset-password', async (req, res) => {
   const normalizedEmail = email.toLowerCase();
 
   try {
-    
+
     const otpRecord = await Otp.findOne({ email: normalizedEmail, otp });
     if (!otpRecord) {
       return res.status(401).json({ message: 'Invalid or expired OTP' });
