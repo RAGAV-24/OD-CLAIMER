@@ -30,7 +30,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response1 = await fetch('http://localhost:5000/api/eventcoordinator');
+        const response1 = await fetch('https://od-claimer.onrender.com/api/eventcoordinator');
 
         if (!response1.ok) {
           throw new Error(`HTTP error! status: ${response1.status}`);
@@ -40,7 +40,7 @@ const Dashboard = () => {
         const eventCoordinatorData = data1.eventcoordinator[0] || {};
         setProfileData(eventCoordinatorData);
 
-        const response = await fetch('http://localhost:5000/api/eventsposted');
+        const response = await fetch('https://od-claimer.onrender.com/api/eventsposted');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -131,9 +131,9 @@ const Dashboard = () => {
         {/* Monthly Event Schedule */}
         <div className="bg-gray-100 shadow-lg rounded-lg p-8 w-full max-w-4xl text-center">
           <h2 className="text-xl font-bold mb-4">Monthly Event Schedule</h2>
-          <Calendar 
-            onChange={onChange} 
-            value={date} 
+          <Calendar
+            onChange={onChange}
+            value={date}
             className="mx-auto"
             tileClassName={tileClassName}  // Mark dates with red circle
           />
@@ -146,8 +146,8 @@ const Dashboard = () => {
             <div className="flex flex-wrap justify-center gap-4 mb-4">
               {events.insideCollege.length > 0 ? (
                 events.insideCollege.map((event) => (
-                  <div 
-                    key={event._id} 
+                  <div
+                    key={event._id}
                     className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                     onClick={() => handleEventClick(event)}
                   >
@@ -159,7 +159,7 @@ const Dashboard = () => {
                 <p>No Inside College Events available at the moment.</p>
               )}
             </div>
-            <button 
+            <button
               className="bg-purple-500 text-white px-4 py-2 rounded transition duration-300"
               onClick={handleAddMore}
             >
@@ -172,8 +172,8 @@ const Dashboard = () => {
             <div className="flex flex-wrap justify-center gap-4 mb-4">
               {events.outsideCollege.length > 0 ? (
                 events.outsideCollege.map((event) => (
-                  <div 
-                    key={event._id} 
+                  <div
+                    key={event._id}
                     className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                     onClick={() => handleEventClick(event)}
                   >
@@ -185,7 +185,7 @@ const Dashboard = () => {
                 <p>No Outside College Events available at the moment.</p>
               )}
             </div>
-            <button 
+            <button
               className="bg-purple-500 text-white px-4 py-2 rounded transition duration-300"
               onClick={handleAddMore}
             >
@@ -201,8 +201,8 @@ const Dashboard = () => {
               <p><strong>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
               <p><strong>Duration:</strong> {selectedEvent.duration}</p>
               <p><strong>Guests:</strong> {selectedEvent.guests}</p>
-              <button 
-                onClick={closeDetails} 
+              <button
+                onClick={closeDetails}
                 className="absolute top-0 right-0 mt-2 mr-2 text-2xl font-bold text-gray-500 hover:text-gray-800"
               >
                 &times;

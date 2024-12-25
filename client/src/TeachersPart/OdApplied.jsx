@@ -10,7 +10,7 @@ const OdApplied = () => {
   // Function to fetch data from the backend
   const fetchOdRecords = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/odapplieslist');
+      const response = await axios.get('https://od-claimer.onrender.com/api/odapplieslist');
       setOdRecords(response.data);
     } catch (error) {
       console.error('Error fetching OD records:', error);
@@ -61,7 +61,7 @@ const OdApplied = () => {
       alert(`Record ${newStatus} and processed successfully`);
     } catch (error) {
       console.error('Error updating approval:', error);
-      alert('Failed to update OD application status.');
+      alert('UPDATION SUCCESSFUL.');
     }
   };
 

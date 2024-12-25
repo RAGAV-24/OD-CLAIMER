@@ -14,7 +14,7 @@ const TeacherEvents = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/eventsposted');
+        const response = await fetch('https://od-claimer.onrender.com/api/eventsposted');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -92,8 +92,8 @@ const TeacherEvents = () => {
                 <div className="flex flex-wrap justify-center gap-4 mb-4">
                   {events.insideCollege.length > 0 ? (
                     events.insideCollege.map(event => (
-                      <div 
-                        key={event._id} 
+                      <div
+                        key={event._id}
                         className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                         onClick={() => handleEventClick(event)}
                       >
@@ -113,8 +113,8 @@ const TeacherEvents = () => {
                 <div className="flex flex-wrap justify-center gap-4 mb-4">
                   {events.outsideCollege.length > 0 ? (
                     events.outsideCollege.map(event => (
-                      <div 
-                        key={event._id} 
+                      <div
+                        key={event._id}
                         className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                         onClick={() => handleEventClick(event)}
                       >
@@ -143,7 +143,7 @@ const TeacherEvents = () => {
                   <img src={`./backend/eventuploads/${selectedEvent.image}`} alt={selectedEvent.eventName} className="w-full h-auto mt-2" />
                 )}
                 </p>
-                <button 
+                <button
                   className="absolute top-2 right-2 text-red-500"
                   onClick={closeModal}
                 >

@@ -26,7 +26,7 @@ const PasswordResetForm = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/reset-password', {
+      const response = await axios.post('https://od-claimer.onrender.com/reset-password', {
         email,
         otp,
         newPassword,

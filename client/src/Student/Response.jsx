@@ -9,7 +9,7 @@ const Response = () => {
   useEffect(() => {
     const fetchResponses = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/od-responses'); // Adjust the endpoint as needed
+        const response = await fetch('https://od-claimer.onrender.com/api/od-responses'); // Adjust the endpoint as needed
         const data = await response.json();
 
         // Initialize uploadCount and uploadDate for each response
@@ -18,7 +18,7 @@ const Response = () => {
           uploadCount: item.uploadCount || 0, // Ensure uploadCount exists
           uploadDate: item.uploadDate || null, // Ensure uploadDate exists
         }));
-        
+
         setResponses(initializedData); // Assuming your API returns an array of responses
       } catch (error) {
         console.error('Error fetching responses:', error);

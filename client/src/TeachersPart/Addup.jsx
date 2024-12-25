@@ -30,7 +30,7 @@ const Addup = () => {
 
       try {
         // Send the file to the backend
-        const response = await axios.post('http://localhost:1000/upload-student-data', formData, {
+        const response = await axios.post('https://od-claimer.onrender.com/upload-student-data', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -51,7 +51,7 @@ const Addup = () => {
 
       try {
         // Send the file to the backend
-        const response = await axios.post('http://localhost:2000/upload-student-credentials', formData, {
+        const response = await axios.post('https://od-claimer.onrender.com/upload-student-credentials', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -72,7 +72,7 @@ const Addup = () => {
 
       try {
         // Send the file to the backend
-        const response = await axios.post('http://localhost:3000/upload-event-coordinator-data', formData, {
+        const response = await axios.post('https://od-claimer.onrender.com/upload-event-coordinator-data', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -93,7 +93,7 @@ const Addup = () => {
 
       try {
         // Send the file to the backend
-        const response = await axios.post('http://localhost:4000/upload-event-coordinator-passwords', formData, {
+        const response = await axios.post('https://od-claimer.onrender.com/upload-event-coordinator-passwords', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

@@ -23,10 +23,10 @@ const MonthlyStats = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const rollNumber = JSON.parse(localStorage.getItem('studentData')).rollNumber; 
+      const rollNumber = JSON.parse(localStorage.getItem('studentData')).rollNumber;
       console.log(rollNumber); // Retrieve roll number from localStorage
       try {
-        const response = await axios.get('http://localhost:5000/api/od-responses');
+        const response = await axios.get('https://od-claimer.onrender.com/od-responses');
         console.log(response);
         const filteredResponses = response.data.filter(response => response.rollNo === rollNumber); // Filter responses by roll number
         countPeriods(filteredResponses); // Pass filtered responses to countPeriods
@@ -48,7 +48,7 @@ const MonthlyStats = () => {
       if (!isNaN(responseDate) && responseDate.getMonth() === month && responseDate.getFullYear() === year) {
         const day = responseDate.getDate(); // Get the day of the month
         const periods = response.periods || 0; // Default to 0 if periods is undefined
-        
+
         if (response.status === 'Accepted') {
           accepted[day] = (accepted[day] || 0) + periods; // Aggregate periods by day
         } else if (response.status === 'Declined') {
@@ -56,7 +56,7 @@ const MonthlyStats = () => {
         }
       }
     });
-    
+
     setDailyStats({ accepted, rejected });
   };
 
@@ -102,11 +102,11 @@ const MonthlyStats = () => {
         const index = elements[0].index; // Get index of clicked bar
         const day = index + 1; // Days are 1-based (1-31)
         setSelectedDate(`${day}/${month + 1}/${year}`); // Set the selected date in state
-        
+
         // Get the accepted and rejected periods for the selected date
         const acceptedPeriods = dailyStats.accepted[day] || 0;
         const rejectedPeriods = dailyStats.rejected[day] || 0;
-        
+
         setSelectedPeriods({ accepted: acceptedPeriods, rejected: rejectedPeriods }); // Update periods state
       }
     },

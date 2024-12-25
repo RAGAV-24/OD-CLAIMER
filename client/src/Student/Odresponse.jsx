@@ -15,7 +15,7 @@ const Odresponse = () => {
     const formData = new FormData(e.target); // Automatically get form data from the event target
 
     try {
-      const response = await fetch('http://localhost:5000/submit-od-form', {
+      const response = await fetch('https://od-claimer.onrender.com/submit-od-form', {
         method: 'POST',
         body: formData, // Send formData including files
       });

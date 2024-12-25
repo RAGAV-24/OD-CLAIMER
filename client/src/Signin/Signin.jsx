@@ -23,15 +23,15 @@ const SigninForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       // Make a POST request to the backend for authentication
-      const response = await axios.post('http://localhost:5000/signin', {
+      const response = await axios.post('https://od-claimer.onrender.com/signin', {
         email,
         password,
         userType, // Include the userType in the request
       });
-  
+
       if (response.status === 200) {
         const { userType, student, teacherData ,eventCoordinator} = response.data.data; // Get userType, student, and teacher data from response
         console.log(teacherData);
@@ -41,9 +41,9 @@ const SigninForm = () => {
           navigate('/student/events');
         } else if (userType === 'teacher') {
           localStorage.setItem('teacherData', JSON.stringify(teacherData));
-          navigate('/teacher/events'); 
+          navigate('/teacher/events');
         } else if (userType === 'eventCoordinator') {
-          
+
           localStorage.setItem('eventCoordinatorData', JSON.stringify(eventCoordinator));
           navigate('eventCoordinator/dashboard');
         }

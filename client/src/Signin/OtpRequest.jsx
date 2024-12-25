@@ -24,7 +24,7 @@ const OtpRequestForm = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/forgot-password', { email, userType });
+      const response = await axios.post('https://od-claimer.onrender.com/forgot-password', { email, userType });
       setMessage(response.data.message);
       navigate('/reset-password');
     } catch (error) {

@@ -17,12 +17,12 @@ const Events = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/eventsposted');
+        const response = await fetch('https://od-claimer.onrender.com/api/eventsposted');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-  
+
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
@@ -128,8 +128,8 @@ const Events = () => {
               <div className="flex flex-wrap justify-center gap-4 mb-4">
                 {filteredInsideCollegeEvents.length > 0 ? (
                   filteredInsideCollegeEvents.map(event => (
-                    <div 
-                      key={event._id} 
+                    <div
+                      key={event._id}
                       className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                       onClick={() => handleEventClick(event)}
                     >
@@ -147,8 +147,8 @@ const Events = () => {
               <div className="flex flex-wrap justify-center gap-4 mb-4">
                 {filteredOutsideCollegeEvents.length > 0 ? (
                   filteredOutsideCollegeEvents.map(event => (
-                    <div 
-                      key={event._id} 
+                    <div
+                      key={event._id}
                       className={`border p-4 rounded-md cursor-pointer hover:bg-gray-300 ${getEventClassName(event.date)}`}
                       onClick={() => handleEventClick(event)}
                     >
@@ -166,7 +166,7 @@ const Events = () => {
         {showModal && selectedEvent && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
             <div className="bg-purple-200 rounded-lg p-6 w-11/12 max-w-lg relative border-8">
-              <button 
+              <button
                 className="absolute top-2 right-2 text-purple-500 hover:text-red-700 focus:outline-none text-5xl p-2"
                 onClick={closeModal}
               >
@@ -183,7 +183,7 @@ const Events = () => {
                   <img src={''} alt={selectedEvent.eventName} className="w-full h-auto mt-2 rounded" />
                 </div>
               )}
-              <button 
+              <button
                 className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600 transition duration-200 mt-4"
                 onClick={navigateToApplyOd}
               >

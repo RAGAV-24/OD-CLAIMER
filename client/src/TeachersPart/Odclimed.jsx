@@ -12,7 +12,7 @@ const Odclimed = () => {
     useEffect(() => {
         const fetchBankRecords = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/bank'); // Bank API endpoint
+                const response = await axios.get('https://od-claimer.onrender.com/api/bank'); // Bank API endpoint
                 setBankRecords(response.data);
             } catch (err) {
                 setError('Error fetching bank records', err);

@@ -15,19 +15,19 @@ const OdApply = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     console.log(formData); // You can process the form data here
-  
+
     try {
       // Use the correct backend URL (replace with your backend's URL)
-      const response = await fetch('http://localhost:5000/odapply', {
+      const response = await fetch('https://od-claimer.onrender.com/odapply', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData), // Send formData as JSON
       });
-  
+
       if (response.ok) {
         setIsSubmitted(true);
       } else {
@@ -37,7 +37,7 @@ const OdApply = () => {
       console.error('Error submitting the form:', error);
     }
   };
-  
+
   const closeModal = () => {
     setIsSubmitted(false);
   };

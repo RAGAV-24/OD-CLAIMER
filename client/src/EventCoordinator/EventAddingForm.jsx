@@ -15,7 +15,7 @@ const EventAddingForm = () => {
     image: null,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange =async (e) => {
     const { name, value, files } = e.target;
@@ -32,16 +32,16 @@ const EventAddingForm = () => {
     for (const key in formData) {
       formDataToSend.append(key, formData[key]);
     }
-  
+
     try {
-      const response = await fetch('http://localhost:5000/api/events', {
+      const response = await fetch('https://od-claimer.onrender.com/api/events', {
         method: 'POST',
         body: formDataToSend,
       });
-  
+
       if (response.ok) {
         const data = await response.json();
-        alert(data.message); 
+        alert(data.message);
         resetForm();
       } else {
         const errorData = await response.json();
@@ -52,7 +52,7 @@ const EventAddingForm = () => {
       alert('An error occurred while submitting the form.');
     }
   };
-  
+
   const resetForm = () => {
     setFormData({
       rollNumber: '',
@@ -74,7 +74,7 @@ const EventAddingForm = () => {
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] "> {/* Adjust height for the navbar */}
         <div className="w-full max-w-lg" style={{ marginTop: '100px' }}>
           <h1 className="text-2xl font-bold mb-8 text-gray-800">Adding EVENT</h1>
-         
+
           {/* Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Roll Number */}
@@ -102,7 +102,7 @@ const EventAddingForm = () => {
                 required
               />
             </div>
-            
+
 
             {/* Date */}
             <div className="flex items-center">
@@ -153,7 +153,7 @@ const EventAddingForm = () => {
                 required
               />
             </div>
-            
+
 
             {/* College Name */}
             <div className="flex items-center">

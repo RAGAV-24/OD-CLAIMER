@@ -7,8 +7,8 @@ const Odresponse = () => {
     const [error, setError] = useState('');
 
     // Define the API endpoints as constants
-    const API_URL = 'http://localhost:5000/api/studentresponsetoteach';
-    const ADD_TO_BANK_URL = 'http://localhost:5000/api/addToBank';
+    const API_URL = 'https://od-claimer.onrender.com/api/studentresponsetoteach';
+    const ADD_TO_BANK_URL = 'https://od-claimer.onrender.com/api/addToBank';
 
     useEffect(() => {
         const fetchStudentForms = async () => {
@@ -44,7 +44,7 @@ const Odresponse = () => {
             const { name, rollNo, periods, collegeName, eventName, geotagPhoto, attendancePhoto } = form; // Extract fields for deletion
 
             try {
-                await axios.delete('http://localhost:5000/api/deleteStudent', {
+                await axios.delete('https://od-claimer.onrender.com/api/deleteStudent', {
                     data: { // Send the data as the request body
                         name,
                         rollNo,
@@ -98,14 +98,14 @@ const Odresponse = () => {
                             <td className="py-2 px-4 border-b border-gray-200">{form.geotagPhoto ? 'Uploaded' : 'Not Uploaded'}</td>
                             <td className="py-2 px-4 border-b border-gray-200">{form.attendancePhoto ? 'Uploaded' : 'Not Uploaded'}</td>
                             <td className="py-2 px-4 border-b border-gray-200 flex space-x-2">
-                                <button 
-                                    onClick={() => handleSubmit(form)} 
+                                <button
+                                    onClick={() => handleSubmit(form)}
                                     className="bg-purple-200 text-white px-4 py-2 rounded hover:bg-purple-500"
                                 >
                                     Submit
                                 </button>
-                                <button 
-                                    onClick={() => handleDelete(form)} 
+                                <button
+                                    onClick={() => handleDelete(form)}
                                     className="bg-red-200 text-white px-4 py-2 rounded hover:bg-red-500"
                                 >
                                     Delete
