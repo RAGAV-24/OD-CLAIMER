@@ -4,24 +4,21 @@ const csv = require('csv-parser');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const cors = require('cors'); // Import the CORS package
+const cors = require('cors'); 
 
-// MongoDB connection string
 const uri = 'mongodb+srv://ragavr33:rudu007@student.mrg3e.mongodb.net/ODClaimerDB?retryWrites=true&w=majority';
 const app = express();
 const port = 3000;
 
-// Configure CORS
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests from your frontend origin
-  methods: ['GET', 'POST'], // Specify allowed methods
-  credentials: true // Allow credentials if needed
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST'], 
+  credentials: true 
 }));
 
-// Configure Multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploadscsv/'); // Ensure this folder exists or create it
+    cb(null, 'uploadscsv/'); 
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -30,7 +27,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Connect to MongoDB
+
 mongoose.connect(uri)
   .then(() => {
     console.log("MongoDB connected successfully.");
@@ -39,7 +36,7 @@ mongoose.connect(uri)
     console.error("MongoDB connection error:", err);
   });
 
-// Define Event Coordinator Schema
+
 const eventCoordinatorSchema = new mongoose.Schema({
   timestamp: { type: String, required: true },
   name: { type: String, required: true },
@@ -54,11 +51,11 @@ const eventCoordinatorSchema = new mongoose.Schema({
 
 const EventCoordinator = mongoose.model('eventcoordinatorsdatas', eventCoordinatorSchema);
 
-// Upload Event Coordinator Data CSV endpoint
+
 app.post('/upload-event-coordinator-data', upload.single('file'), (req, res) => {
   const results = [];
 
-  fs.createReadStream(req.file.path) // Read the uploaded CSV file
+  fs.createReadStream(req.file.path) 
     .pipe(csv())
     .on('data', (data) => {
       results.push(data);
@@ -78,7 +75,7 @@ app.post('/upload-event-coordinator-data', upload.single('file'), (req, res) => 
             college: eventData.EventcoordinatorCollege,
           });
 
-          await eventCoordinator.save(); // Save each coordinator to the database
+          await eventCoordinator.save(); 
         }
         console.log("CSV data uploaded successfully.");
         res.status(200).json({ message: 'CSV data uploaded successfully.' });
@@ -86,7 +83,7 @@ app.post('/upload-event-coordinator-data', upload.single('file'), (req, res) => 
         console.error("Error uploading CSV data:", err);
         res.status(500).json({ error: 'Error uploading CSV data.' });
       } finally {
-        // Optionally delete the uploaded file after processing
+        
         fs.unlink(req.file.path, (err) => {
           if (err) console.error("Error deleting file:", err);
         });
@@ -94,7 +91,6 @@ app.post('/upload-event-coordinator-data', upload.single('file'), (req, res) => 
     });
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

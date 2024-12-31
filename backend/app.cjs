@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://od-claimer.vercel.app'], // Allow multiple origins
+  origin: ['http://localhost:5173', 'https://od-claimer.vercel.app'], 
   methods: 'GET,POST,PUT,DELETE,OPTIONS',
   allowedHeaders: 'Content-Type,Authorization',
   credentials: true,
@@ -111,17 +111,17 @@ const eventCoordinatorSchema = new mongoose.Schema({
 });
 const EventCoordinator = mongoose.model('eventcoordinatorsdatas', eventCoordinatorSchema);
 const formSchema = new mongoose.Schema({
-  name: { type: String, required: true },          // Student name
-  rollNo: { type: String, required: true },        // Roll number (allow duplicates)
-  date: { type: Date, required: true },            // Date of event
-  periods: { type: Number, required: true },       // Number of periods
-  eventName: { type: String, required: true },     // Event name
-  collegeName: { type: String, required: true },   // Name of the college
-  geotagPhoto: { type: String, required: true },   // Geotag photo URL or path
-  attendancePhoto: { type: String, required: true },// Attendance sheet photo URL or path
-  submittedAt: { type: Date, default: Date.now }   // Submission timestamp
+  name: { type: String, required: true },          
+  rollNo: { type: String, required: true },        
+  date: { type: Date, required: true },            
+  periods: { type: Number, required: true },       
+  eventName: { type: String, required: true },     
+  collegeName: { type: String, required: true },   
+  geotagPhoto: { type: String, required: true },   
+  attendancePhoto: { type: String, required: true },
+  submittedAt: { type: Date, default: Date.now }   
 });
-const Form = mongoose.model('StudentForm', formSchema); // Ensure yo keep this line
+const Form = mongoose.model('StudentForm', formSchema); 
 const formSchemas = new mongoose.Schema({
   rollNo: String,
   name: String,
@@ -139,7 +139,7 @@ const newOdSchema = new mongoose.Schema({
   date : Date,
   eventName: String,
   collegeName: String,
-  status: { type: String, enum: ['Accepted', 'Declined', 'Pending'], default: 'Pending' } // Add the status field
+  status: { type: String, enum: ['Accepted', 'Declined', 'Pending'], default: 'Pending' } 
 });
 
 const NewOdCollection = mongoose.model('NewOdCollection', newOdSchema);
@@ -302,7 +302,7 @@ app.get('/api/odapplieslist', async (req, res) => {
 });
 
 
-app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part
+app.get('/api/od-responses', async (req, res) => {
   try {
     const ev = await NewOdCollection.find();
     res.json(ev);
@@ -310,12 +310,11 @@ app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx 
     res.status(500).json({ error: 'Error fetching events' });
   }
 });
- // Route to delete an OD record when all fields match
+ 
 app.delete('/api/delete-od-record', async (req, res) => {
   const { rollNo, name, periods, eventName, collegeName } = req.body;
 
   try {
-    // Find and delete the record that matches all the provided fields
     const deletedRecord = await Form2.findOneAndDelete({
       rollNo: rollNo,
       name: name,
@@ -328,7 +327,6 @@ app.delete('/api/delete-od-record', async (req, res) => {
       return res.status(404).json({ error: 'Record not found' });
     }
 
-    // Successfully deleted the record
     res.status(200).json({ message: 'Record deleted successfully' });
   } catch (error) {
     console.error('Error deleting record:', error);
@@ -339,14 +337,13 @@ app.post('/api/new-od-collection', async (req, res) => {
   const { rollNo, status } = req.body;
 
   try {
-    // Fetch the existing record from Form2 (original collection)
+
     const existingRecord = await Form2.findOne({ rollNo });
 
     if (!existingRecord) {
       return res.status(404).json({ message: 'Record not found' });
     }
 
-    // Create a new record in the NewOdCollection with the status field
     const newRecord = new NewOdCollection({
       rollNo: existingRecord.rollNo,
       name: existingRecord.name,
@@ -354,16 +351,15 @@ app.post('/api/new-od-collection', async (req, res) => {
       date: existingRecord.date,
       eventName: existingRecord.eventName,
       collegeName: existingRecord.collegeName,
-      status: status  // Set the status to Accepted or Declined
+      status: status  
     });
 
-    // Save the new record in the new collection
     await newRecord.save();
 
-    // Delete the original record from Form2 after saving to the new collection
+
     await Form2.findOneAndDelete({ rollNo });
 
-    // Return success response
+
     res.status(201).json({ message: 'Record saved to new collection and deleted from original collection', newRecord });
   } catch (error) {
     console.error('Error updating OD status:', error);
@@ -382,16 +378,16 @@ app.post('/api/addToBank', async (req, res) => {
   const { rollNo, periods } = req.body;
 
   try {
-      // Find existing document
+
       const existingRecord = await Bank.findOne({ rollNo });
 
       if (existingRecord) {
-          // If exists, update the periods
+
           existingRecord.periods += periods;
           await existingRecord.save();
           return res.status(200).json({ message: 'Periods updated successfully!' });
       } else {
-          // If not exists, create a new document
+          
           const newRecord = new Bank({ rollNo, periods });
           await newRecord.save();
           return res.status(201).json({ message: 'New record created successfully!' });
@@ -404,7 +400,7 @@ app.post('/api/addToBank', async (req, res) => {
 
 app.get('/api/bank', async (req, res) => {
   try {
-      const records = await Bank.find(); // Fetch all records from the bank collection
+      const records = await Bank.find(); 
       return res.status(200).json(records);
   } catch (error) {
       console.error(error);
@@ -415,7 +411,7 @@ app.delete('/api/deleteStudent', async (req, res) => {
   const { name, rollNo, periods, collegeName, eventName, geotagPhoto, attendancePhoto } = req.body;
 
   try {
-      // Build a query object with the fields to match
+      
       const query = {
           name,
           rollNo,
@@ -426,29 +422,28 @@ app.delete('/api/deleteStudent', async (req, res) => {
           attendancePhoto,
       };
 
-      // Find and delete the student response that matches all fields
+    
       const deletedResponse = await Form.findOneAndDelete(query);
 
-      // Check if the response was found and deleted
       if (!deletedResponse) {
-          return res.status(404).json({ message: 'Student response not found.' }); // Return 404 if not found
+          return res.status(404).json({ message: 'Student response not found.' }); 
       }
 
-      // Return success response
+      
       res.status(200).json({ message: 'Student response deleted successfully.' });
   } catch (error) {
       console.error('Error deleting student response:', error);
-      res.status(500).json({ message: 'Server error. Please try again.' }); // Return 500 for server errors
+      res.status(500).json({ message: 'Server error. Please try again.' }); 
   }
 });
 app.get('/api/newodcollections/:rollNo', async (req, res) => {
   const { rollNo } = req.params;
 
   try {
-      // Fetch records matching the roll number from newOdCollection
-      const records = await NewOdCollection.find({ rollNo }); // Adjust the field name if necessary
+    
+      const records = await NewOdCollection.find({ rollNo }); 
 
-      // Check if records were found
+      
       if (!records.length) {
           return res.status(404).json({ message: 'No records found for this roll number.' });
       }
