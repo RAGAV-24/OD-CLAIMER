@@ -45,10 +45,10 @@ const OdApplied = () => {
         status: newStatus
       };
 
-      await axios.post('http://localhost:5000/api/new-od-collection', updatedData);
+      await axios.post('https://od-claimer.onrender.com/api/new-od-collection', updatedData);
 
       // Delete the original record from the current collection
-      await axios.delete('http://localhost:5000/api/delete-od-record', {
+      await axios.delete('https://od-claimer.onrender.com/api/delete-od-record', {
         data: {
           rollNo: record.rollNo,
           name: record.name,
