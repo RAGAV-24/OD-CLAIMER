@@ -29,7 +29,7 @@ const Odclimed = () => {
         const fetchNewOdRecords = async () => {
             if (selectedRollNo) {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/newodcollections/${selectedRollNo}`); // New OD API endpoint
+                    const response = await axios.get(`https://od-claimer.onrender.com/api/newodcollections/${selectedRollNo}`); // New OD API endpoint
                     setNewOdRecords(response.data);
                 } catch (err) {
                     setError('Error fetching new OD records', err);

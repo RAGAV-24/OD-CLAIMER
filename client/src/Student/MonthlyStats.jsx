@@ -1,4 +1,4 @@
-import { Bar } from 'react-chartjs-2'; // Import Bar component
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,102 +12,135 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend); // Register BarElement
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const MonthlyStats = () => {
-  const [dailyStats, setDailyStats] = useState({ accepted: {}, rejected: {} });
-  const [selectedDate, setSelectedDate] = useState(null); // State for selected date
-  const [selectedPeriods, setSelectedPeriods] = useState({ accepted: 0, rejected: 0 }); // State for periods
-  const month = new Date().getMonth(); // Current month (0-11)
-  const year = new Date().getFullYear(); // Current year
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const rollNumber = JSON.parse(localStorage.getItem('studentData')).rollNumber;
-      console.log(rollNumber); // Retrieve roll number from localStorage
       try {
-        const response = await axios.get('https://od-claimer.onrender.com/od-responses');
-        console.log(response);
-        const filteredResponses = response.data.filter(response => response.rollNo === rollNumber); // Filter responses by roll number
-        countPeriods(filteredResponses); // Pass filtered responses to countPeriods
+        const rollNumber = JSON.parse(localStorage.getItem('studentData'))?.rollNumber.toLowerCase();
+        if (!rollNumber) {
+          console.error('No roll number found in localStorage');
+          return;
+        }
+
+        const response = await axios.get('https://od-claimer.onrender.com/api/od-responses');
+        const filteredResponses = response.data
+          .filter(response => response.rollNo === rollNumber)
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        setMonthlyData(filteredResponses);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
     fetchData();
-  });
+  }, []);
 
-  const countPeriods = (responses) => {
-    const accepted = {};
-    const rejected = {};
-
-    responses.forEach(response => {
-      const responseDate = new Date(response.date);
-      // Check if the response date is valid and falls within the current month and year
-      if (!isNaN(responseDate) && responseDate.getMonth() === month && responseDate.getFullYear() === year) {
-        const day = responseDate.getDate(); // Get the day of the month
-        const periods = response.periods || 0; // Default to 0 if periods is undefined
-
-        if (response.status === 'Accepted') {
-          accepted[day] = (accepted[day] || 0) + periods; // Aggregate periods by day
-        } else if (response.status === 'Declined') {
-          rejected[day] = (rejected[day] || 0) + periods; // Aggregate periods by day
-        }
-      }
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
     });
-
-    setDailyStats({ accepted, rejected });
   };
 
-  // Prepare data for the chart
   const chartData = {
-    labels: Array.from({ length: 31 }, (_, i) => i + 1), // Days of the month
-    datasets: [
-      {
-        label: 'Accepted',
-        data: Array.from({ length: 31 }, (_, i) => dailyStats.accepted[i + 1] || 0),
-        backgroundColor: 'rgba(75, 192, 192, 0.5)', // Change for bar graph
-      },
-      {
-        label: 'Rejected',
-        data: Array.from({ length: 31 }, (_, i) => dailyStats.rejected[i + 1] || 0),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Change for bar graph
-      },
-    ],
+    labels: monthlyData.map(record => formatDate(record.date)),
+    datasets: [{
+      label: 'Period Range',
+      data: monthlyData.map(record => ({
+        x: formatDate(record.date),
+        y: record.endPeriod - record.startPeriod + 1,
+        startPeriod: record.startPeriod,
+        endPeriod: record.endPeriod,
+        status: record.status,
+        eventName: record.eventName
+      })),
+      backgroundColor: monthlyData.map(record =>
+        record.status === 'Accepted' ? 'rgba(75, 192, 192, 0.7)' :
+        record.status === 'Declined' ? 'rgba(255, 99, 132, 0.7)' :
+        'rgba(255, 206, 86, 0.7)'
+      ),
+      borderColor: monthlyData.map(record =>
+        record.status === 'Accepted' ? 'rgba(75, 192, 192, 1)' :
+        record.status === 'Declined' ? 'rgba(255, 99, 132, 1)' :
+        'rgba(255, 206, 86, 1)'
+      ),
+      borderWidth: 1,
+    }]
   };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        display: false
       },
       title: {
         display: true,
-        text: 'Monthly OD Stats',
+        text: 'OD Period Distribution',
+        font: {
+          size: 16,
+          weight: 'bold',
+        },
       },
       tooltip: {
         callbacks: {
+          title: (tooltipItems) => {
+            const index = tooltipItems[0].dataIndex;
+            const record = monthlyData[index];
+            return formatDate(record.date);
+          },
           label: (tooltipItem) => {
-            const day = tooltipItem.label; // Get the day from tooltip item
-            const dateString = `${day}/${month + 1}/${year}`; // Format date string
-            return dateString; // Return formatted date
+            const record = monthlyData[tooltipItem.dataIndex];
+            return [
+              `Event: ${record.eventName}`,
+              `Periods: ${record.startPeriod} to ${record.endPeriod}`,
+              `Status: ${record.status}`
+            ];
           },
         },
       },
     },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: 'Date',
+          font: {
+            size: 14,
+            weight: 'bold',
+          },
+        },
+      },
+      y: {
+        min: 0,
+        max: 8,
+        title: {
+          display: true,
+          text: 'Number of Periods',
+          font: {
+            size: 14,
+            weight: 'bold',
+          },
+        },
+        ticks: {
+          stepSize: 1
+        }
+      },
+    },
     onClick: (event, elements) => {
       if (elements.length > 0) {
-        const index = elements[0].index; // Get index of clicked bar
-        const day = index + 1; // Days are 1-based (1-31)
-        setSelectedDate(`${day}/${month + 1}/${year}`); // Set the selected date in state
-
-        // Get the accepted and rejected periods for the selected date
-        const acceptedPeriods = dailyStats.accepted[day] || 0;
-        const rejectedPeriods = dailyStats.rejected[day] || 0;
-
-        setSelectedPeriods({ accepted: acceptedPeriods, rejected: rejectedPeriods }); // Update periods state
+        const index = elements[0].index;
+        setSelectedRecord(monthlyData[index]);
       }
     },
   };
@@ -115,23 +148,67 @@ const MonthlyStats = () => {
   return (
     <div className='py-4 min-h-screen w-full bg-white bg-fixed [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)]'>
       <Navbar />
-      <div className="mt-12 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Monthly OD Stats</h2>
-        <div className="flex justify-center mt-6">
-          <div className="w-full max-w-4xl">
-            <Bar data={chartData} options={options} /> {/* Change Line to Bar */}
-            {selectedDate && (
-              <div className="mt-4 text-lg text-gray-700">
-                Selected Date: {selectedDate} {/* Display selected date */}
-                <div>
-                  Accepted Periods: {selectedPeriods.accepted} {/* Display accepted periods */}
-                </div>
-                <div>
-                  Rejected Periods: {selectedPeriods.rejected} {/* Display rejected periods */}
-                </div>
+      <div className="container mx-auto px-4 mt-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">
+            OD Records
+          </h2>
+
+          {monthlyData.length > 0 ? (
+            <>
+              <div className="h-[400px] mb-8">
+                <Bar data={chartData} options={options} />
               </div>
-            )}
-          </div>
+
+              {selectedRecord && (
+                <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                    OD Details for {formatDate(selectedRecord.date)}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className={`p-4 rounded-md ${
+                      selectedRecord.status === 'Accepted' ? 'bg-green-50' :
+                      selectedRecord.status === 'Declined' ? 'bg-red-50' :
+                      'bg-yellow-50'
+                    }`}>
+                      <p className="text-sm font-medium text-gray-600">Name</p>
+                      <p className="text-lg font-semibold">{selectedRecord.name}</p>
+                      <p className="text-sm font-medium text-gray-600 mt-2">Status</p>
+                      <p className={`text-lg font-semibold ${
+                        selectedRecord.status === 'Accepted' ? 'text-green-600' :
+                        selectedRecord.status === 'Declined' ? 'text-red-600' :
+                        'text-yellow-600'
+                      }`}>
+                        {selectedRecord.status}
+                      </p>
+                    </div>
+                    <div className="bg-blue-50 p-4 rounded-md">
+                      <p className="text-sm font-medium text-gray-600">Period Range</p>
+                      <p className="text-lg font-semibold text-blue-600">
+                        Period {selectedRecord.startPeriod} to {selectedRecord.endPeriod}
+                      </p>
+                      <p className="text-sm font-medium text-gray-600 mt-2">Total Periods</p>
+                      <p className="text-lg font-semibold text-blue-600">
+                        {selectedRecord.endPeriod - selectedRecord.startPeriod + 1} Periods
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-md">
+                      <p className="text-sm font-medium text-gray-600">Event</p>
+                      <p className="text-lg font-semibold text-purple-600">{selectedRecord.eventName}</p>
+                      <p className="text-sm font-medium text-gray-600 mt-2">College</p>
+                      <p className="text-lg font-semibold text-purple-600">{selectedRecord.collegeName}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-600">
+              No OD records found
+            </div>
+          )}
         </div>
       </div>
     </div>
