@@ -25,6 +25,11 @@ const OdApplied = () => {
     fetchOdRecords();
   }, []);
 
+  // Function to format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-GB');
+  };
+
   // Function to update the status in the new collection and delete the record from the current one
   const handleStatusUpdate = async (record, newStatus) => {
     try {
@@ -32,14 +37,14 @@ const OdApplied = () => {
       const updatedData = {
         rollNo: record.rollNo,
         name: record.name,
-        periods: record.periods,
-        date:record.date,
+        date: record.date,
+        startPeriod: record.startPeriod,
+        endPeriod: record.endPeriod,
         eventName: record.eventName,
         collegeName: record.collegeName,
-        status: newStatus // Update status based on button clicked (Accepted or Declined)
+        status: newStatus
       };
 
-      // Post the updated record to the new collection
       await axios.post('http://localhost:5000/api/new-od-collection', updatedData);
 
       // Delete the original record from the current collection
@@ -47,7 +52,8 @@ const OdApplied = () => {
         data: {
           rollNo: record.rollNo,
           name: record.name,
-          periods: record.periods,
+          startPeriod: record.startPeriod,
+          endPeriod: record.endPeriod,
           eventName: record.eventName,
           collegeName: record.collegeName,
         },
@@ -80,7 +86,9 @@ const OdApplied = () => {
           <tr className="text-left">
             <th className="px-4 py-2 font-semibold text-gray-700">REGISTER NUMBER</th>
             <th className="px-4 py-2 font-semibold text-gray-700">NAME</th>
-            <th className="px-4 py-2 font-semibold text-gray-700">NO OF PERIODS OF OD</th>
+            <th className="px-4 py-2 font-semibold text-gray-700">DATE</th>
+            <th className="px-4 py-2 font-semibold text-gray-700">START PERIOD</th>
+            <th className="px-4 py-2 font-semibold text-gray-700">END PERIOD</th>
             <th className="px-4 py-2 font-semibold text-gray-700">EVENT NAME</th>
             <th className="px-4 py-2 font-semibold text-gray-700">COLLEGE NAME</th>
             <th className="text-center px-4 py-2 font-semibold text-gray-700">STATUS</th>
@@ -92,20 +100,22 @@ const OdApplied = () => {
               <tr key={record._id} className={`border-b ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
                 <td className="px-4 py-2 text-gray-800">{record.rollNo}</td>
                 <td className="px-4 py-2 text-gray-800">{record.name}</td>
-                <td className="px-4 py-2 font-bold text-gray-800">{record.periods}</td>
+                <td className="px-4 py-2 text-gray-800">{formatDate(record.date)}</td>
+                <td className="px-4 py-2 font-bold text-gray-800">{record.startPeriod}</td>
+                <td className="px-4 py-2 font-bold text-gray-800">{record.endPeriod}</td>
                 <td className="px-4 py-2 text-gray-800">{record.eventName}</td>
                 <td className="px-4 py-2 text-gray-800">{record.collegeName}</td>
                 <td className="px-4 py-2 text-center">
                   <>
                     <button
                       className="mr-2 text-green-500 hover:text-green-700"
-                      onClick={() => handleStatusUpdate(record, 'Accepted')} // Handle accept and update status
+                      onClick={() => handleStatusUpdate(record, 'Accepted')}
                     >
                       <FaCheck />
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={() => handleStatusUpdate(record, 'Declined')} // Handle decline and update status
+                      onClick={() => handleStatusUpdate(record, 'Declined')}
                     >
                       <FaTimes />
                     </button>
@@ -115,7 +125,7 @@ const OdApplied = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="6" className="text-center py-2 text-gray-500">No records found.</td>
+              <td colSpan="8" className="text-center py-2 text-gray-500">No records found.</td>
             </tr>
           )}
         </tbody>

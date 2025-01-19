@@ -122,6 +122,7 @@ const formSchema = new mongoose.Schema({
   submittedAt: { type: Date, default: Date.now }   // Submission timestamp
 });
 const Form = mongoose.model('StudentForm', formSchema); // Ensure yo keep this line
+
 const formSchemas = new mongoose.Schema({
   rollNo: String,
   name: String,
@@ -133,15 +134,19 @@ const formSchemas = new mongoose.Schema({
 });
 
 const Form2 = mongoose.model('odApply', formSchemas);
-
 const newOdSchema = new mongoose.Schema({
   rollNo: String,
   name: String,
-  periods: Number,
-  date : Date,
+  date: Date,
+  startPeriod: Number,
+  endPeriod: Number,
   eventName: String,
   collegeName: String,
-  status: { type: String, enum: ['Accepted', 'Declined', 'Pending'], default: 'Pending' } // Add the status field
+  status: {
+    type: String,
+    enum: ['Accepted', 'Declined', 'Pending'],
+    default: 'Pending'
+  }
 });
 
 const NewOdCollection = mongoose.model('NewOdCollection', newOdSchema);
@@ -307,14 +312,12 @@ app.get('/api/eventsposted', async (req, res) => {
 app.get('/api/odapplieslist', async (req, res) => {
   try {
     const records = await Form2.find({});
-    console.log(records);
     res.status(200).json(records);
   } catch (error) {
     console.error('Error fetching records:', error);
     res.status(500).json({ error: 'Failed to fetch records' });
   }
 });
-
 
 app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx page in  student part
   try {
@@ -325,24 +328,30 @@ app.get('/api/od-responses', async (req, res) => {//this is for od response.jsx 
   }
 });
  // Route to delete an OD record when all fields match
-app.delete('/api/delete-od-record', async (req, res) => {
-  const { rollNo, name, periods, eventName, collegeName } = req.body;
+ app.delete('/api/delete-od-record', async (req, res) => {
+  const {
+    rollNo,
+    name,
+    startPeriod,
+    endPeriod,
+    eventName,
+    collegeName
+  } = req.body;
 
   try {
-    // Find and delete the record that matches all the provided fields
     const deletedRecord = await Form2.findOneAndDelete({
-      rollNo: rollNo,
-      name: name,
-      periods: periods,
-      eventName: eventName,
-      collegeName: collegeName
+      rollNo,
+      name,
+      startPeriod,
+      endPeriod,
+      eventName,
+      collegeName
     });
 
     if (!deletedRecord) {
       return res.status(404).json({ error: 'Record not found' });
     }
 
-    // Successfully deleted the record
     res.status(200).json({ message: 'Record deleted successfully' });
   } catch (error) {
     console.error('Error deleting record:', error);
@@ -350,38 +359,51 @@ app.delete('/api/delete-od-record', async (req, res) => {
   }
 });
 app.post('/api/new-od-collection', async (req, res) => {
-  const { rollNo, status } = req.body;
+  const {
+    rollNo,
+    name,
+    date,
+    startPeriod,
+    endPeriod,
+    eventName,
+    collegeName,
+    status
+  } = req.body;
 
   try {
-    // Fetch the existing record from Form2 (original collection)
-    const existingRecord = await Form2.findOne({ rollNo });
-
-    if (!existingRecord) {
-      return res.status(404).json({ message: 'Record not found' });
-    }
-
-    // Create a new record in the NewOdCollection with the status field
+    // Create a new record in NewOdCollection
     const newRecord = new NewOdCollection({
-      rollNo: existingRecord.rollNo,
-      name: existingRecord.name,
-      periods: existingRecord.periods,
-      date: existingRecord.date,
-      eventName: existingRecord.eventName,
-      collegeName: existingRecord.collegeName,
-      status: status  // Set the status to Accepted or Declined
+      rollNo,
+      name,
+      date,
+      startPeriod,
+      endPeriod,
+      eventName,
+      collegeName,
+      status
     });
 
-    // Save the new record in the new collection
+    // Save the new record
     await newRecord.save();
 
-    // Delete the original record from Form2 after saving to the new collection
-    await Form2.findOneAndDelete({ rollNo });
+    // Delete the record from the original collection
+    await Form2.findOneAndDelete({
+      rollNo,
+      name,
+      date,
+      startPeriod,
+      endPeriod,
+      eventName,
+      collegeName
+    });
 
-    // Return success response
-    res.status(201).json({ message: 'Record saved to new collection and deleted from original collection', newRecord });
+    res.status(201).json({
+      message: 'Record processed successfully',
+      newRecord
+    });
   } catch (error) {
-    console.error('Error updating OD status:', error);
-    res.status(500).json({ message: 'Failed to update and delete record' });
+    console.error('Error processing record:', error);
+    res.status(500).json({ error: 'Failed to process record' });
   }
 });
 app.get('/api/studentresponsetoteach', async (req, res) => {
