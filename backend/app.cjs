@@ -126,10 +126,12 @@ const formSchemas = new mongoose.Schema({
   rollNo: String,
   name: String,
   date: Date,
-  periods: Number,
+  startPeriod: Number,
+  endPeriod: Number,
   eventName: String,
   collegeName: String
 });
+
 const Form2 = mongoose.model('odApply', formSchemas);
 
 const newOdSchema = new mongoose.Schema({
@@ -263,17 +265,30 @@ app.post('/submit-od-form', upload.fields([{ name: 'geotagPhoto' }, { name: 'att
     res.status(500).json({ message: 'Error submitting form', error: err });
   }
 });
+
 app.post('/odapply', async (req, res) => {
   try {
-    const { rollNumber, name, date, noOfPeriods, eventName, collegeName } = req.body;
+    const { rollNumber, name, date, startPeriod, endPeriod, eventName, collegeName } = req.body;
+
+    // Validate period range
+    if (startPeriod < 1 || startPeriod > 8 || endPeriod < 1 || endPeriod > 8) {
+      return res.status(400).json({ error: 'Periods must be between 1 and 8' });
+    }
+
+    if (startPeriod > endPeriod) {
+      return res.status(400).json({ error: 'Start period cannot be greater than end period' });
+    }
+
     const newForm = new Form2({
       rollNo: rollNumber,
       name,
       date,
-      periods: noOfPeriods,
+      startPeriod,
+      endPeriod,
       eventName,
       collegeName
     });
+
     await newForm.save();
     res.status(200).json({ message: 'Form submitted successfully' });
   } catch (error) {
@@ -281,7 +296,6 @@ app.post('/odapply', async (req, res) => {
     res.status(500).json({ error: 'Failed to submit form' });
   }
 });
-
 app.get('/api/eventsposted', async (req, res) => {
   try {
     const events = await Event.find();

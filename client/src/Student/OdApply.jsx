@@ -8,7 +8,8 @@ const OdApply = () => {
     rollNumber: '',
     name: '',
     date: '',
-    noOfPeriods: '',
+    startPeriod: '',
+    endPeriod: '',
     eventName: '',
     collegeName: ''
   });
@@ -16,22 +17,28 @@ const OdApply = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData); // You can process the form data here
-
     try {
-      // Use the correct backend URL (replace with your backend's URL)
       const response = await fetch('https://od-claimer.onrender.com/odapply', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData), // Send formData as JSON
+        body: JSON.stringify({
+          rollNumber: formData.rollNumber,
+          name: formData.name,
+          date: formData.date,
+          startPeriod: parseInt(formData.startPeriod),
+          endPeriod: parseInt(formData.endPeriod),
+          eventName: formData.eventName,
+          collegeName: formData.collegeName
+        }),
       });
 
       if (response.ok) {
         setIsSubmitted(true);
       } else {
-        console.error('Failed to submit the form');
+        const errorData = await response.json();
+        console.error('Failed to submit the form:', errorData.error);
       }
     } catch (error) {
       console.error('Error submitting the form:', error);
@@ -55,11 +62,9 @@ const OdApply = () => {
       <Navbar />
       <div className="flex-grow flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-lg">
-          {/* Apply OD Header */}
           <h1 className="text-2xl font-bold mb-8 text-gray-800">Apply OD</h1>
           <hr className="border-black w-16 mb-6" />
 
-          {/* Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Roll Number */}
             <div className="flex items-center">
@@ -102,18 +107,33 @@ const OdApply = () => {
               />
             </div>
 
-            {/* No of Periods */}
+            {/* Periods (Start and End) */}
             <div className="flex items-center">
-              <label className="w-1/3 font-bold text-gray-700 text-lg">No of Periods</label>
-              <input
-                type="number"
-                name="noOfPeriods"
-                value={formData.noOfPeriods}
-                onChange={handleInputChange}
-                className="w-2/3 bg-gray-200 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter No of Periods"
-                required
-              />
+              <label className="w-1/3 font-bold text-gray-700 text-lg">Periods</label>
+              <div className="w-2/3 flex space-x-2">
+                <input
+                  type="number"
+                  name="startPeriod"
+                  value={formData.startPeriod}
+                  onChange={handleInputChange}
+                  className="w-1/2 bg-gray-200 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Start Period"
+                  min="1"
+                  max="8"
+                  required
+                />
+                <input
+                  type="number"
+                  name="endPeriod"
+                  value={formData.endPeriod}
+                  onChange={handleInputChange}
+                  className="w-1/2 bg-gray-200 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="End Period"
+                  min="1"
+                  max="8"
+                  required
+                />
+              </div>
             </div>
 
             {/* Event Name */}
